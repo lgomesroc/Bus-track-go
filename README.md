@@ -8,7 +8,6 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
 
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Banco de dados](#banco-de-dados)
-- [Estrutura de pastas](#estrutura-de-pastas)
 - [Aulas](#aulas)
   - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
   - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
