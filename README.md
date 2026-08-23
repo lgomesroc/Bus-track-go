@@ -46,17 +46,6 @@ O banco de dados principal planejado para o projeto é o **Oracle**.
 
 Caso ocorram dificuldades técnicas relevantes durante a integração, o **MySQL** poderá ser utilizado como alternativa.
 
-## Estrutura de pastas
-
-```text
-bus-track-go/
-├── backend/
-│   ├── go.mod
-│   └── main.go
-├── frontend/
-└── README.md
-```
-
 ## Aulas
 
 ### Aula 1 — Inicialização do BusTrack Go
