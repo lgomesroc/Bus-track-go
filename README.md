@@ -4,6 +4,27 @@ Backend de uma aplicação de gerenciamento de ônibus, desenvolvido em Go.
 
 O projeto foi criado com foco em aprendizado prático de desenvolvimento backend, mantendo uma arquitetura simples e evoluindo a aplicação de forma incremental.
 
+## Índice
+
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Banco de dados](#banco-de-dados)
+- [Estrutura de pastas](#estrutura-de-pastas)
+- [Aulas](#aulas)
+  - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
+  - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
+    - [Decisão técnica](#decisão-técnica)
+- [Próximas aulas](#próximas-aulas)
+  - [Aula 3 — Modelando o domínio](#aula-3--modelando-o-domínio)
+  - [Aula 4 — CRUD de ônibus em memória](#aula-4--crud-de-ônibus-em-memória)
+  - [Aula 5 — Persistência com Oracle](#aula-5--persistência-com-oracle)
+  - [Aula 6 — Repository](#aula-6--repository)
+  - [Aula 7 — Validação e tratamento de erros](#aula-7--validação-e-tratamento-de-erros)
+  - [Aula 8 — Testes da API](#aula-8--testes-da-api)
+  - [Aula 9 — Docker](#aula-9--docker)
+  - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
+  - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
+  - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
+
 ## Estrutura do projeto
 
 ```text
@@ -65,32 +86,59 @@ Resultado:
 BusTrack Go
 ```
 
-## Próximas aulas
-
 ### Aula 2 — Primeira API HTTP em Go
 
-Aqui começamos realmente o backend.
+Objetivo: criar a primeira API HTTP do BusTrack Go utilizando apenas a biblioteca padrão do Go.
 
-- [x] `net/http`;
-- [x] servidor HTTP;
-- [x] rotas;
-- [x] métodos HTTP;
-- [x] `GET`;
-- [x] status HTTP;
-- [x] resposta JSON;
-- [x] endpoint `/health`.
+Foi realizado:
 
-Exemplo conceitual:
+- [x] utilização do pacote net/http;
+- [x] criação de um servidor HTTP;
+- [x] criação da rota /health;
+- [x] criação de um handler HTTP;
+- [x] utilização do método GET;
+- [x] validação do método HTTP recebido;
+- [x] retorno do status 200 OK;
+- [x] retorno do status 405 Method Not Allowed para métodos não permitidos;
+- [x] utilização do status 404 Not Found para rotas inexistentes;
+- [x] definição do Content-Type como application/json;
+- [x] utilização do pacote encoding/json;
+- [x] serialização da resposta para JSON;
+- [x] criação do endpoint GET /health.
+
+Endpoint:
 
 ```text
 GET /health
+```
 
+Resposta:
+
+```text
 {
-    "status": "ok"
+  "status": "ok"
 }
 ```
 
-Nada de framework ainda.
+Comportamentos validados:
+
+```text
+GET  /health  → 200 OK
+POST /health  → 405 Method Not Allowed
+GET  /buses   → 404 Not Found
+```
+
+#### Decisão técnica
+
+Nesta etapa não foi utilizado nenhum framework HTTP.
+
+A implementação utiliza somente recursos da biblioteca padrão do Go, principalmente net/http e encoding/json.
+
+A decisão foi intencional: antes de adicionar abstrações ou frameworks, o projeto deve estabelecer uma compreensão dos fundamentos de HTTP, incluindo rotas, métodos, status, headers e respostas JSON.
+
+O objetivo do BusTrack Go é evoluir de forma incremental, adicionando complexidade somente quando ela resolver um problema real do projeto.
+
+## Próximas aulas
 
 ### Aula 3 — Modelando o domínio
 
@@ -108,11 +156,11 @@ Bus
 
 Aqui entram:
 
-- [x] structs;
-- [x] tipos;
-- [x] JSON;
-- [x] organização do código;
-- [x] separação básica entre domínio e HTTP.
+- [ ] structs;
+- [ ] tipos;
+- [ ] JSON;
+- [ ] organização do código;
+- [ ] separação básica entre domínio e HTTP.
 
 ### Aula 4 — CRUD de ônibus em memória
 
@@ -136,17 +184,17 @@ Isso permite aprender **API + Go** sem colocar banco, Docker e frontend simultan
 
 Agora entra uma das partes novas para o projeto.
 
-- [x] Oracle;
-- [x] Docker;
-- [x] conexão com banco;
-- [x] `database/sql`;
-- [x] driver Oracle;
-- [x] configuração da conexão;
-- [x] primeira tabela;
-- [x] `INSERT`;
-- [x] `SELECT`;
-- [x] `UPDATE`;
-- [x] `DELETE`.
+- [ ] Oracle;
+- [ ] Docker;
+- [ ] conexão com banco;
+- [ ] `database/sql`;
+- [ ] driver Oracle;
+- [ ] configuração da conexão;
+- [ ] primeira tabela;
+- [ ] `INSERT`;
+- [ ] `SELECT`;
+- [ ] `UPDATE`;
+- [ ] `DELETE`.
 
 Aqui o BusTrack deixa de ser apenas uma API em memória.
 
@@ -172,13 +220,13 @@ Oracle
 
 Vamos deixar a API minimamente profissional.
 
-- [x] validação de entrada;
-- [x] HTTP 400;
-- [x] HTTP 404;
-- [x] HTTP 500;
-- [x] erros do banco;
-- [x] respostas JSON padronizadas;
-- [x] tratamento de situações inválidas.
+- [ ] validação de entrada;
+- [ ] HTTP 400;
+- [ ] HTTP 404;
+- [ ] HTTP 500;
+- [ ] erros do banco;
+- [ ] respostas JSON padronizadas;
+- [ ] tratamento de situações inválidas.
 
 Exemplo:
 
@@ -192,12 +240,12 @@ Exemplo:
 
 Entramos nos testes.
 
-- [x] testes unitários;
-- [x] testes dos handlers;
-- [x] httptest;
-- [x] casos de sucesso;
-- [x] casos de erro;
-- [x] testes do service.
+- [ ] testes unitários;
+- [ ] testes dos handlers;
+- [ ] httptest;
+- [ ] casos de sucesso;
+- [ ] casos de erro;
+- [ ] testes do service.
 
 > Sem criar uma infraestrutura desnecessariamente complexa de testes.
 
@@ -205,11 +253,11 @@ Entramos nos testes.
 
 Agora vamos organizar o ambiente.
 
-- [x] Docker;
-- [x] container Oracle;
-- [x] variáveis de ambiente;
-- [x] conexão da aplicação com o banco;
-- [x] configuração para desenvolvimento.
+- [ ] Docker;
+- [ ] container Oracle;
+- [ ] variáveis de ambiente;
+- [ ] conexão da aplicação com o banco;
+- [ ] configuração para desenvolvimento.
 
 A ideia é chegar a algo próximo de:
 
@@ -225,12 +273,12 @@ Go API
 
 Agora entra o frontend.
 
-- [x] criação do projeto Vue;
-- [x] JavaScript;
-- [x] estrutura básica;
-- [x] componentes;
-- [x] páginas;
-- [x] consumo da API.
+- [ ] criação do projeto Vue;
+- [ ] JavaScript;
+- [ ] estrutura básica;
+- [ ] componentes;
+- [ ] páginas;
+- [ ] consumo da API.
 
 Primeira tela:
 
@@ -249,14 +297,14 @@ BusTrack
 
 Integração completa.
 
-- [x] listar ônibus;
-- [x] cadastrar;
-- [x] editar;
-- [x] excluir;
-- [x] formulário;
-- [x] tratamento de erros;
-- [x] loading;
-- [x] comunicação com API Go.
+- [ ] listar ônibus;
+- [ ] cadastrar;
+- [ ] editar;
+- [ ] excluir;
+- [ ] formulário;
+- [ ] tratamento de erros;
+- [ ] loading;
+- [ ] comunicação com API Go.
 
 Nesse ponto teremos:
 
@@ -272,12 +320,12 @@ Oracle
 
 Aqui fazemos o acabamento.
 
-- [x] revisar estrutura;
-- [x] revisar código;
-- [x] testar aplicação completa;
-- [x] revisar Docker;
-- [x] atualizar README;
-- [x] explicar arquitetura;
-- [x] registrar decisões técnicas;
-- [x] criar versão final do projeto;
-- [x] Git/GitHub.
+- [ ] revisar estrutura;
+- [ ] revisar código;
+- [ ] testar aplicação completa;
+- [ ] revisar Docker;
+- [ ] atualizar README;
+- [ ] explicar arquitetura;
+- [ ] registrar decisões técnicas;
+- [ ] criar versão final do projeto;
+- [ ] Git/GitHub.
