@@ -6,14 +6,15 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
 
 ## Índice
 
+- [Tecnologias](#tecnologias)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Banco de dados](#banco-de-dados)
 - [Aulas](#aulas)
   - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
   - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
     - [Decisão técnica](#decisão-técnica)
-- [Próximas aulas](#próximas-aulas)
   - [Aula 3 — Modelando o domínio](#aula-3--modelando-o-domínio)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 4 — CRUD de ônibus em memória](#aula-4--crud-de-ônibus-em-memória)
   - [Aula 5 — Persistência com Oracle](#aula-5--persistência-com-oracle)
   - [Aula 6 — Repository](#aula-6--repository)
@@ -24,11 +25,62 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
   - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
 
+## Tecnologias
+
+### Go
+
+Utilizado no backend da aplicação.
+
+Go foi escolhido para este projeto porque permite construir uma API HTTP com uma base enxuta e próxima dos fundamentos da linguagem, sem exigir um framework para começar.
+
+A evolução do backend será feita de forma incremental, começando pela biblioteca padrão e adicionando outras dependências somente quando houver uma necessidade real.
+
+### Vue.js
+
+Será utilizado no frontend da aplicação.
+
+Vue.js foi escolhido por permitir construir uma interface web moderna mantendo uma curva de aprendizado adequada ao objetivo do projeto.
+
+A aplicação frontend será desenvolvida utilizando JavaScript.
+
+### JavaScript
+
+Será utilizado como linguagem do frontend.
+
+A escolha mantém o frontend simples e evita adicionar TypeScript neste projeto, permitindo concentrar o aprendizado do BusTrack Go no backend em Go e na integração entre frontend e API.
+
+### Oracle
+
+Será utilizado como banco de dados principal.
+
+Oracle foi escolhido para permitir trabalhar com um banco relacional utilizado em ambientes corporativos, incluindo conexão, SQL, transações e persistência de dados.
+
+### Docker
+
+Será utilizado para facilitar a criação e reprodução do ambiente de desenvolvimento.
+
+O Docker também permitirá manter dependências de infraestrutura isoladas da máquina local e preparar o projeto para ambientes de publicação.
+
+### Git e GitHub
+
+Git será utilizado para controle de versão e o GitHub será utilizado para hospedagem do código-fonte.
+
+O repositório público também faz parte do objetivo de portfólio do projeto, permitindo que recrutadores e outros desenvolvedores tenham acesso ao código e à evolução da aplicação.
+
+### Deploy
+
+O projeto será desenvolvido considerando sua publicação em ambiente de produção.
+
+A solução de hospedagem será definida durante a etapa de deploy, priorizando alternativas gratuitas ou com camada gratuita suficiente para manter a aplicação disponível como projeto de portfólio.
+
 ## Estrutura do projeto
 
 ```text
 bus-track-go/
 ├── backend/
+│   ├── domain/
+│   │   ├── bus.go
+│   │   └── bus_test.go
 │   ├── go.mod
 │   └── main.go
 ├── frontend/
@@ -126,11 +178,25 @@ A decisão foi intencional: antes de adicionar abstrações ou frameworks, o pro
 
 O objetivo do BusTrack Go é evoluir de forma incremental, adicionando complexidade somente quando ela resolver um problema real do projeto.
 
-## Próximas aulas
-
 ### Aula 3 — Modelando o domínio
 
-Vamos definir o que é um ônibus dentro do sistema.
+**Objetivo**: definir o modelo de domínio `Bus` e estabelecer a primeira separação entre o domínio da aplicação e a camada HTTP.
+
+Foi realizado:
+
+- [x] criação do package `domain`;
+- [x] criação da struct `Bus`;
+- [x] definição dos campos `ID`, `Prefix`, `LicensePlate`, `Model`, `Capacity` e `Status`;
+- [x] utilização dos tipos `int` e `string`;
+- [x] utilização de struct tags para serialização JSON;
+- [x] utilização do `encoding/json`;
+- [x] teste de conversão de `Bus` para JSON com `json.Marshal`;
+- [x] teste de conversão de JSON para `Bus` com `json.Unmarshal`;
+- [x] criação de testes unitários para o domínio;
+- [x] validação dos testes com `go test ./...`;
+- [x] manutenção da separação básica entre domínio e HTTP.
+
+Modelo:
 
 ```text
 Bus
@@ -142,13 +208,43 @@ Bus
 └── Status
 ```
 
-Aqui entram:
+A struct foi definida em:
 
-- [ ] structs;
-- [ ] tipos;
-- [ ] JSON;
-- [ ] organização do código;
-- [ ] separação básica entre domínio e HTTP.
+```text
+backend/domain/bus.go
+```
+
+Os testes foram definidos em:
+
+```text
+backend/domain/bus_test.go
+```
+
+O domínio não possui dependência direta de `net/http`. A responsabilidade do Bus é representar uma entidade do negócio, enquanto a camada HTTP continuará responsável pela comunicação com a API.
+
+Também foi validado que a criação do domínio não alterou o funcionamento da API existente:
+
+```text
+GET /health → 200 OK
+```
+
+Resposta:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+#### Decisão técnica
+
+O domínio foi separado da camada HTTP antes da implementação do CRUD.
+
+Neste momento não foram criadas camadas de Service, Repository ou outras abstrações. A arquitetura continuará evoluindo conforme surgirem necessidades reais no projeto.
+
+Essa abordagem mantém o BusTrack Go simples e permite compreender cada responsabilidade antes de adicionar novas camadas.
+
+## Próximas aulas
 
 ### Aula 4 — CRUD de ônibus em memória
 
@@ -317,3 +413,17 @@ Aqui fazemos o acabamento.
 - [ ] registrar decisões técnicas;
 - [ ] criar versão final do projeto;
 - [ ] Git/GitHub.
+
+## Deploy e publicação
+
+O projeto será desenvolvido desde o início considerando a publicação da aplicação em ambiente de produção.
+
+Ao final do desenvolvimento, o BusTrack Go terá:
+
+- [ ] backend publicado;
+- [ ] frontend publicado;
+- [ ] aplicação acessível por URL pública;
+- [ ] configuração de produção;
+- [ ] documentação do processo de deploy.
+
+O objetivo é disponibilizar tanto o repositório no GitHub quanto uma versão funcional da aplicação para utilização como projeto de portfólio.
