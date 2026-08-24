@@ -12,17 +12,24 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
 - [Aulas](#aulas)
   - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
   - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
+    - [Decisão técnica](#decisão-técnica)
   - [Aula 3 — Modelando o domínio](#aula-3--modelando-o-domínio)
+    - [Decisão técnica](#decisão-técnica)
   - [Aula 4 — CRUD de ônibus em memória](#aula-4--crud-de-ônibus-em-memória)
-- [Próximas aulas](#próximas-aulas)
+    - [Decisão técnica](#decisão-técnica)
   - [Aula 5 — Persistência com Oracle](#aula-5--persistência-com-oracle)
+    - [Decisão técnica](#decisão-técnica)
   - [Aula 6 — Repository](#aula-6--repository)
+    - [Decisão técnica](#decisão-técnica)
   - [Aula 7 — Validação e tratamento de erros](#aula-7--validação-e-tratamento-de-erros)
+    - [Decisão técnica](#decisão-técnica)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 8 — Testes da API](#aula-8--testes-da-api)
   - [Aula 9 — Docker](#aula-9--docker)
   - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
   - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
+- [Evolução](#evolução)
 - [Deploy e publicação](#deploy-e-publicação)
 
 ## Tecnologias
@@ -34,6 +41,26 @@ Utilizado no backend da aplicação.
 Go foi escolhido para este projeto porque permite construir uma API HTTP com uma base enxuta e próxima dos fundamentos da linguagem, sem exigir um framework para começar.
 
 A evolução do backend será feita de forma incremental, começando pela biblioteca padrão e adicionando outras dependências somente quando houver uma necessidade real.
+
+### Oracle Instant Client
+
+Utilizado para permitir que a aplicação Go se comunique com o Oracle Database por meio do driver `godror`.
+
+O Oracle Instant Client fornece as bibliotecas nativas necessárias para a conexão da aplicação com o banco de dados.
+
+Nesta etapa foi utilizado o Oracle Instant Client 23.26.
+
+### godror
+
+Driver utilizado para integração entre Go e Oracle Database.
+
+O `godror` é utilizado em conjunto com o pacote `database/sql`, permitindo que o backend execute operações SQL no Oracle utilizando a API padrão de acesso a bancos de dados do Go.
+
+Versão utilizada:
+
+```text
+github.com/godror/godror v0.51.4
+```
 
 ### Vue.js
 
@@ -55,11 +82,15 @@ Será utilizado como banco de dados principal.
 
 Oracle foi escolhido para permitir trabalhar com um banco relacional utilizado em ambientes corporativos, incluindo conexão, SQL, transações e persistência de dados.
 
+A aplicação Go utiliza o pacote `database/sql` em conjunto com o driver `godror` e o Oracle Instant Client para realizar a comunicação com o banco.
+
 ### Docker
 
 Será utilizado para facilitar a criação e reprodução do ambiente de desenvolvimento.
 
 O Docker também permitirá manter dependências de infraestrutura isoladas da máquina local e preparar o projeto para ambientes de publicação.
+
+A utilização do Docker será abordada na Aula 9.
 
 ### Git e GitHub
 
@@ -76,12 +107,20 @@ A solução de hospedagem será definida durante a etapa de deploy, priorizando 
 ## Estrutura do projeto
 
 ```text
+## Estrutura do projeto
+
+```text
 bus-track-go/
 ├── backend/
+│   ├── database/
+│   │   └── oracle.go
 │   ├── domain/
 │   │   ├── bus.go
 │   │   └── bus_test.go
+│   ├── repository/
+│   │   └── bus_repository.go
 │   ├── go.mod
+│   ├── go.sum
 │   └── main.go
 ├── frontend/
 └── README.md
@@ -89,11 +128,33 @@ bus-track-go/
 
 O diretório `backend` concentra a API desenvolvida em Go.<br>
 
+O diretório `domain` contém as entidades e testes relacionados ao domínio da aplicação.
+
+O diretório `repository` concentra a persistência dos dados e a comunicação entre a aplicação e o banco de dados.
+
 O diretório `frontend` será utilizado posteriormente para a aplicação Vue.js.
 
 ## Banco de dados
 
-O banco de dados principal planejado para o projeto é o **Oracle**.
+O banco de dados principal do projeto é o **Oracle**.
+
+A aplicação utiliza o pacote padrão `database/sql` do Go em conjunto com o driver `godror` para realizar a comunicação com o Oracle.
+
+O ambiente também utiliza o **Oracle Instant Client**, responsável pelas bibliotecas nativas necessárias para a conexão.
+
+A conexão atualmente utiliza:
+
+```text
+Oracle Database
+    ↑
+Oracle Instant Client
+    ↑
+godror
+    ↑
+database/sql
+    ↑
+Go API
+```
 
 Caso ocorram dificuldades técnicas relevantes durante a integração, o **MySQL** poderá ser utilizado como alternativa.
 
@@ -311,65 +372,162 @@ Nesta etapa não foram criadas camadas de Service ou Repository, nem interfaces 
 
 A decisão mantém a implementação simples e permite compreender o funcionamento do CRUD, dos métodos HTTP, dos status de resposta e da manipulação de dados em Go antes da introdução da persistência com Oracle.
 
-A separação de responsabilidades será aprofundada nas próximas aulas conforme novas necessidades forem introduzidas.
-
-## Próximas aulas
+A persistência será implementada posteriormente com Oracle.
 
 ### Aula 5 — Persistência com Oracle
 
-Agora entra uma das partes novas para o projeto.
+**Objetivo**: substituir o armazenamento temporário em memória por persistência real utilizando Oracle Database.
 
-- [ ] Oracle;
-- [ ] Docker;
-- [ ] conexão com banco;
-- [ ] `database/sql`;
-- [ ] driver Oracle;
-- [ ] configuração da conexão;
-- [ ] primeira tabela;
-- [ ] `INSERT`;
-- [ ] `SELECT`;
-- [ ] `UPDATE`;
-- [ ] `DELETE`.
+Foi realizado:
 
-Aqui o BusTrack deixa de ser apenas uma API em memória.
+- [x] configuração do Oracle Database utilizado pelo projeto;
+- [x] instalação do Oracle Instant Client;
+- [x] configuração das bibliotecas do Oracle no Linux;
+- [x] validação das bibliotecas nativas necessárias para o Oracle;
+- [x] instalação do driver `github.com/godror/godror`;
+- [x] integração do `godror` com `database/sql`;
+- [x] criação da conexão com o Oracle;
+- [x] criação do package `database`;
+- [x] criação da função `NewOracleConnection`;
+- [x] validação da conexão Go → Oracle;
+- [x] execução de `INSERT`;
+- [x] execução de `SELECT`;
+- [x] execução de `UPDATE`;
+- [x] execução de `DELETE`;
+- [x] substituição do armazenamento em memória pela persistência no Oracle;
+- [x] validação da aplicação utilizando `go test ./...`;
+- [x] validação da compilação utilizando `go build ./...`.
+
+A conexão foi centralizada em:
+
+```text
+backend/database/oracle.go
+```
+
+A aplicação passou a utilizar o Oracle como fonte persistente dos dados.
+
+Fluxo:
+```text
+Go API
+   ↓
+database/sql
+   ↓
+godror
+   ↓
+Oracle Instant Client
+   ↓
+Oracle Database
+```
+
+A partir desta etapa, os dados dos ônibus deixam de ser perdidos quando a aplicação é reiniciada.
+
+#### Decisão técnica
+
+Foi utilizado `database/sql` em conjunto com o driver `godror`, evitando acoplamento da aplicação diretamente a uma API específica de acesso ao banco.
+
+O Oracle Instant Client foi utilizado como camada nativa necessária para a comunicação com o Oracle no ambiente Linux.
 
 ### Aula 6 — Repository
 
-Agora fazemos uma organização simples para separar:
+**Objetivo**: separar a responsabilidade de persistência da camada HTTP.
+
+Foi realizado:
+
+- [x] criação do package `repository`;
+- [x] criação do `BusRepository`;
+- [x] criação da função `NewBusRepository`;
+- [x] implementação de `FindAll`;
+- [x] implementação de `FindByID`;
+- [x] implementação de `Create`;
+- [x] implementação de `Update`;
+- [x] implementação de `Delete`;
+- [x] utilização de SQL para persistência no Oracle;
+- [x] tratamento de registros inexistentes;
+- [x] tratamento de erros de banco de dados;
+- [x] integração do Repository com a API;
+- [x] validação do CRUD completo utilizando Oracle.
+
+Estrutura atual:
 
 ```text
 HTTP
-  ↓
-Service
-  ↓
+ ↓
 Repository
-  ↓
+ ↓
 Oracle
 ```
 
-> Não vamos criar interfaces e abstrações desnecessárias apenas para aumentar a complexidade da arquitetura.
+O Repository foi definido em:
 
-> O objetivo é entender a responsabilidade de cada parte.
+```text
+backend/repository/bus_repository.go
+```
+
+#### Decisão técnica
+
+O Repository foi introduzido somente quando surgiu uma necessidade real de separar a persistência da camada HTTP.
+
+Não foram criadas interfaces apenas para aumentar a complexidade da arquitetura.
+
+A responsabilidade do Repository é executar operações de persistência e retornar os dados ou erros para a camada superior.
 
 ### Aula 7 — Validação e tratamento de erros
 
-Vamos deixar a API minimamente profissional.
+**Objetivo**: tornar a API mais segura e previsível no tratamento de entradas inválidas, registros inexistentes e erros de operação.
 
-- [ ] validação de entrada;
-- [ ] HTTP 400;
-- [ ] HTTP 404;
-- [ ] HTTP 500;
-- [ ] erros do banco;
-- [ ] respostas JSON padronizadas;
-- [ ] tratamento de situações inválidas.
+Foi realizado:
 
-Exemplo:
+- [x] validação de campos obrigatórios;
+- [x] validação de capacidade do ônibus;
+- [x] validação de ID recebido pela URL;
+- [x] tratamento de ID inválido com HTTP 400;
+- [x] tratamento de ônibus inexistente com HTTP 404;
+- [x] tratamento de métodos HTTP não permitidos;
+- [x] tratamento de erros de persistência;
+- [x] retorno HTTP 201 Created para criação;
+- [x] retorno HTTP 204 No Content para exclusão;
+- [x] validação manual dos endpoints utilizando `curl`;
+- [x] validação de criação de registros no Oracle;
+- [x] validação de atualização de registros no Oracle;
+- [x] validação de exclusão de registros no Oracle.
 
-```json
-{
-  "error": "bus not found"
-}
+Comportamentos validados:
+
+```text
+POST /api/buses com dados inválidos → 400 Bad Request
+
+GET /api/buses/abc → 400 Bad Request
+
+GET /api/buses/999999 → 404 Not Found
+
+POST /api/buses → 201 Created
+
+PUT /api/buses/{id} → 200 OK
+
+DELETE /api/buses/{id} → 204 No Content
+
+GET /api/buses/{id} após exclusão → 404 Not Found
 ```
+
+Exemplo de validação:
+
+```text
+DELETE /api/buses/42
+→ 204 No Content
+
+GET /api/buses/42
+→ 404 Not Found
+```
+
+A API agora diferencia erros de entrada, recursos inexistentes e operações realizadas com sucesso.
+
+#### Decisão técnica
+
+O tratamento de erros foi mantido simples e explícito, utilizando os códigos HTTP adequados para cada situação.
+
+O objetivo nesta etapa não é criar um framework próprio de erros, mas estabelecer um comportamento consistente para a API antes da introdução de testes automatizados mais abrangentes.
+
+## Próximas aulas
 
 ### Aula 8 — Testes da API
 
@@ -464,6 +622,45 @@ Aqui fazemos o acabamento.
 - [ ] registrar decisões técnicas;
 - [ ] criar versão final do projeto;
 - [ ] Git/GitHub.
+
+## Evolução
+```text
+Aula 1
+  ↓
+Inicialização Go
+
+Aula 2
+  ↓
+HTTP
+
+Aula 3
+  ↓
+Domínio
+
+Aula 4
+  ↓
+CRUD em memória
+
+Aula 5
+  ↓
+Oracle + godror + Instant Client
+
+Aula 6
+  ↓
+Repository
+
+Aula 7
+  ↓
+Validação + erros
+
+Aula 8
+  ↓
+Testes da API
+
+Aula 9
+  ↓
+Docker
+```
 
 ## Deploy e publicação
 
