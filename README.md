@@ -12,10 +12,9 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
 - [Aulas](#aulas)
   - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
   - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
-    - [Decisão técnica](#decisão-técnica)
   - [Aula 3 — Modelando o domínio](#aula-3--modelando-o-domínio)
-- [Próximas aulas](#próximas-aulas)
   - [Aula 4 — CRUD de ônibus em memória](#aula-4--crud-de-ônibus-em-memória)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 5 — Persistência com Oracle](#aula-5--persistência-com-oracle)
   - [Aula 6 — Repository](#aula-6--repository)
   - [Aula 7 — Validação e tratamento de erros](#aula-7--validação-e-tratamento-de-erros)
@@ -24,6 +23,7 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
   - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
   - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
+- [Deploy e publicação](#deploy-e-publicação)
 
 ## Tecnologias
 
@@ -128,7 +128,7 @@ BusTrack Go
 
 ### Aula 2 — Primeira API HTTP em Go
 
-Objetivo: criar a primeira API HTTP do BusTrack Go utilizando apenas a biblioteca padrão do Go.
+**Objetivo**: criar a primeira API HTTP do BusTrack Go utilizando apenas a biblioteca padrão do Go.
 
 Foi realizado:
 
@@ -244,13 +244,29 @@ Neste momento não foram criadas camadas de Service, Repository ou outras abstra
 
 Essa abordagem mantém o BusTrack Go simples e permite compreender cada responsabilidade antes de adicionar novas camadas.
 
-## Próximas aulas
-
 ### Aula 4 — CRUD de ônibus em memória
 
-Antes de envolver Oracle, vamos fazer o sistema funcionar.
+**Objetivo**: implementar o CRUD de ônibus utilizando armazenamento temporário em memória, antes da introdução do Oracle.
 
-Endpoints:
+Foi realizado:
+
+- [x] criação do armazenamento de ônibus em memória;
+- [x] implementação do endpoint `GET /api/buses`;
+- [x] implementação do endpoint `GET /api/buses/{id}`;
+- [x] implementação do endpoint `POST /api/buses`;
+- [x] implementação do endpoint `PUT /api/buses/{id}`;
+- [x] implementação do endpoint `DELETE /api/buses/{id}`;
+- [x] geração do próximo ID para novos ônibus em memória;
+- [x] tratamento de ID inválido com HTTP 400;
+- [x] tratamento de ônibus inexistente com HTTP 404;
+- [x] tratamento de métodos HTTP não permitidos com HTTP 405;
+- [x] retorno HTTP 201 Created para criação;
+- [x] retorno HTTP 204 No Content para exclusão;
+- [x] validação manual dos endpoints utilizando `curl`;
+- [x] formatação do código com `gofmt`;
+- [x] validação do projeto com `go test ./...`.
+
+Endpoints implementados:
 
 ```text
 GET    /api/buses
@@ -260,9 +276,44 @@ PUT    /api/buses/{id}
 DELETE /api/buses/{id}
 ```
 
-Usaremos memória temporariamente.
+O armazenamento utilizado nesta etapa é um slice em memória:
 
-Isso permite aprender **API + Go** sem colocar banco, Docker e frontend simultaneamente na mesa.
+```text
+API HTTP
+   ↓
+[]Bus
+```
+
+Os dados são perdidos quando a aplicação é reiniciada. A persistência será implementada posteriormente com Oracle.
+
+Comportamentos validados:
+
+```text
+GET    /api/buses        → 200 OK
+GET    /api/buses/1      → 200 OK
+GET    /api/buses/999    → 404 Not Found
+GET    /api/buses/abc    → 400 Bad Request
+
+POST   /api/buses        → 201 Created
+
+PUT    /api/buses/3      → 200 OK
+PUT    /api/buses/999    → 404 Not Found
+
+DELETE /api/buses/3      → 204 No Content
+DELETE /api/buses/999    → 404 Not Found
+```
+
+#### Decisão técnica
+
+O CRUD foi implementado diretamente na camada HTTP e utiliza memória como armazenamento temporário.
+
+Nesta etapa não foram criadas camadas de Service ou Repository, nem interfaces para abstrações futuras.
+
+A decisão mantém a implementação simples e permite compreender o funcionamento do CRUD, dos métodos HTTP, dos status de resposta e da manipulação de dados em Go antes da introdução da persistência com Oracle.
+
+A separação de responsabilidades será aprofundada nas próximas aulas conforme novas necessidades forem introduzidas.
+
+## Próximas aulas
 
 ### Aula 5 — Persistência com Oracle
 
@@ -282,7 +333,7 @@ Agora entra uma das partes novas para o projeto.
 
 Aqui o BusTrack deixa de ser apenas uma API em memória.
 
- ### Aula 6 — Repository
+### Aula 6 — Repository
 
 Agora fazemos uma organização simples para separar:
 
