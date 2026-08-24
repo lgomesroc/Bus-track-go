@@ -2,163 +2,202 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/lgomesroc/bus-track-go/database"
 	"github.com/lgomesroc/bus-track-go/domain"
+	"github.com/lgomesroc/bus-track-go/repository"
 )
 
-var buses = []domain.Bus{
-	{
-		ID:           1,
-		Prefix:       "001",
-		LicensePlate: "ABC1D23",
-		Model:        "Mercedes-Benz",
-		Capacity:     50,
-		Status:       "active",
-	},
-	{
-		ID:           2,
-		Prefix:       "002",
-		LicensePlate: "DEF4G56",
-		Model:        "Volkswagen",
-		Capacity:     45,
-		Status:       "active",
-	},
-}
-
 func main() {
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/api/buses", busesHandler)
-	http.HandleFunc("/api/buses/", busByIDHandler)
+	db, err := database.NewOracleConnection()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-	http.ListenAndServe(":8080", nil)
+	busRepository := repository.NewBusRepository(db)
+
+	http.HandleFunc("/health", healthHandler)
+	http.HandleFunc("/api/buses", busesHandler(busRepository))
+	http.HandleFunc("/api/buses/", busByIDHandler(busRepository))
+
+	log.Println("BusTrack API running on http://localhost:8080")
+
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-	response := map[string]string{
+	writeJSON(w, http.StatusOK, map[string]string{
 		"status": "ok",
-	}
-
-	json.NewEncoder(w).Encode(response)
+	})
 }
 
-func busesHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getBuses(w)
-	case http.MethodPost:
-		createBus(w, r)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
-}
+func busesHandler(busRepository *repository.BusRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			buses, err := busRepository.FindAll()
+			if err != nil {
+				http.Error(w, "failed to find buses", http.StatusInternalServerError)
+				return
+			}
 
-func getBuses(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
+			writeJSON(w, http.StatusOK, buses)
 
-	json.NewEncoder(w).Encode(buses)
-}
+		case http.MethodPost:
+			var bus domain.Bus
 
-func createBus(w http.ResponseWriter, r *http.Request) {
-	var bus domain.Bus
+			if err := decodeJSON(r, &bus); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
 
-	err := json.NewDecoder(r.Body).Decode(&bus)
-	if err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
+			if err := validateBus(bus); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 
-	bus.ID = nextBusID()
+			createdBus, err := busRepository.Create(bus)
+			if err != nil {
+				http.Error(w, "failed to create bus", http.StatusInternalServerError)
+				return
+			}
 
-	buses = append(buses, bus)
+			writeJSON(w, http.StatusCreated, createdBus)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	json.NewEncoder(w).Encode(bus)
-}
-
-func nextBusID() int {
-	maxID := 0
-
-	for _, bus := range buses {
-		if bus.ID > maxID {
-			maxID = bus.ID
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	}
-
-	return maxID + 1
 }
 
-func busByIDHandler(w http.ResponseWriter, r *http.Request) {
-	idText := strings.TrimPrefix(r.URL.Path, "/api/buses/")
-
-	id, err := strconv.Atoi(idText)
-	if err != nil {
-		http.Error(w, "invalid bus id", http.StatusBadRequest)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		getBusByID(w, id)
-	case http.MethodPut:
-		updateBus(w, r, id)
-	case http.MethodDelete:
-		deleteBus(w, id)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func getBusByID(w http.ResponseWriter, id int) {
-	for _, bus := range buses {
-		if bus.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(bus)
+func busByIDHandler(busRepository *repository.BusRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := parseBusID(r.URL.Path)
+		if err != nil {
+			http.Error(w, "invalid bus id", http.StatusBadRequest)
 			return
 		}
-	}
 
-	http.Error(w, "bus not found", http.StatusNotFound)
-}
+		switch r.Method {
+		case http.MethodGet:
+			bus, err := busRepository.FindByID(id)
+			if err != nil {
+				http.Error(w, "failed to find bus", http.StatusInternalServerError)
+				return
+			}
 
-func updateBus(w http.ResponseWriter, r *http.Request, id int) {
-	var updatedBus domain.Bus
+			if bus == nil {
+				http.Error(w, "bus not found", http.StatusNotFound)
+				return
+			}
 
-	err := json.NewDecoder(r.Body).Decode(&updatedBus)
-	if err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
+			writeJSON(w, http.StatusOK, bus)
 
-	for index, bus := range buses {
-		if bus.ID == id {
-			updatedBus.ID = id
-			buses[index] = updatedBus
+		case http.MethodPut:
+			var bus domain.Bus
 
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(updatedBus)
-			return
-		}
-	}
+			if err := decodeJSON(r, &bus); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
 
-	http.Error(w, "bus not found", http.StatusNotFound)
-}
+			if err := validateBus(bus); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 
-func deleteBus(w http.ResponseWriter, id int) {
-	for index, bus := range buses {
-		if bus.ID == id {
-			buses = append(buses[:index], buses[index+1:]...)
+			updatedBus, err := busRepository.Update(id, bus)
+			if err != nil {
+				http.Error(w, "failed to update bus", http.StatusInternalServerError)
+				return
+			}
+
+			if updatedBus == nil {
+				http.Error(w, "bus not found", http.StatusNotFound)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, updatedBus)
+
+		case http.MethodDelete:
+			err := busRepository.Delete(id)
+			if err != nil {
+				if errors.Is(err, repository.ErrBusNotFound) {
+					http.Error(w, "bus not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(w, "failed to delete bus", http.StatusInternalServerError)
+				return
+			}
 
 			w.WriteHeader(http.StatusNoContent)
-			return
+
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	}
+}
 
-	http.Error(w, "bus not found", http.StatusNotFound)
+func validateBus(bus domain.Bus) error {
+	if strings.TrimSpace(bus.Prefix) == "" {
+		return errors.New("prefix is required")
+	}
+
+	if strings.TrimSpace(bus.LicensePlate) == "" {
+		return errors.New("licensePlate is required")
+	}
+
+	if strings.TrimSpace(bus.Model) == "" {
+		return errors.New("model is required")
+	}
+
+	if bus.Capacity <= 0 {
+		return errors.New("capacity must be greater than zero")
+	}
+
+	if strings.TrimSpace(bus.Status) == "" {
+		return errors.New("status is required")
+	}
+
+	return nil
+}
+
+func parseBusID(path string) (int, error) {
+	idString := strings.TrimPrefix(path, "/api/buses/")
+
+	if idString == "" || strings.Contains(idString, "/") {
+		return 0, errors.New("invalid bus id")
+	}
+
+	return strconv.Atoi(idString)
+}
+
+func decodeJSON(r *http.Request, target interface{}) error {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	return decoder.Decode(target)
+}
+
+func writeJSON(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("failed to write JSON response: %v", err)
+	}
 }
