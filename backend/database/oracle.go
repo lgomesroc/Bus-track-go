@@ -3,12 +3,26 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/godror/godror"
 )
 
 func NewOracleConnection() (*sql.DB, error) {
-	dsn := `user="system" password="BusTrack123" connectString="localhost:1521/FREEPDB1"`
+	user := os.Getenv("ORACLE_USER")
+	password := os.Getenv("ORACLE_PASSWORD")
+	connectString := os.Getenv("ORACLE_CONNECT_STRING")
+
+	if user == "" || password == "" || connectString == "" {
+		return nil, fmt.Errorf("Oracle environment variables are not configured")
+	}
+
+	dsn := fmt.Sprintf(
+		`user="%s" password="%s" connectString="%s"`,
+		user,
+		password,
+		connectString,
+	)
 
 	db, err := sql.Open("godror", dsn)
 	if err != nil {
