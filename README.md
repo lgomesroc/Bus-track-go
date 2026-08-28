@@ -23,8 +23,9 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
     - [Decisão técnica](#decisão-técnica)
   - [Aula 7 — Validação e tratamento de erros](#aula-7--validação-e-tratamento-de-erros)
     - [Decisão técnica](#decisão-técnica)
-- [Próximas aulas](#próximas-aulas)
   - [Aula 8 — Testes da API](#aula-8--testes-da-api)
+    - [Decisão técnica](#decisão-técnica)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 9 — Docker](#aula-9--docker)
   - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
@@ -121,6 +122,7 @@ bus-track-go/
 │   │   └── bus_repository.go
 │   ├── go.mod
 │   ├── go.sum
+│   ├── main_test.go
 │   └── main.go
 ├── frontend/
 └── README.md
@@ -527,20 +529,114 @@ O tratamento de erros foi mantido simples e explícito, utilizando os códigos H
 
 O objetivo nesta etapa não é criar um framework próprio de erros, mas estabelecer um comportamento consistente para a API antes da introdução de testes automatizados mais abrangentes.
 
-## Próximas aulas
-
 ### Aula 8 — Testes da API
 
-Entramos nos testes.
+**Objetivo**: automatizar os testes da API para validar os handlers, regras de validação e diferentes cenários de sucesso e erro sem depender do Oracle Database durante a execução dos testes.
 
-- [ ] testes unitários;
-- [ ] testes dos handlers;
-- [ ] httptest;
-- [ ] casos de sucesso;
-- [ ] casos de erro;
-- [ ] testes do service.
+Foi realizado:
 
-> Sem criar uma infraestrutura desnecessariamente complexa de testes.
+- [x] criação do arquivo `backend/main_test.go`;
+- [x] criação de testes unitários;
+- [x] criação de testes para os handlers HTTP;
+- [x] utilização do pacote `net/http/httptest`;
+- [x] criação de um mock do `BusRepository` por meio de interface;
+- [x] testes do endpoint `GET /health`;
+- [x] testes de validação de dados;
+- [x] testes de parsing do ID;
+- [x] testes do endpoint `GET /api/buses`;
+- [x] testes do endpoint `POST /api/buses`;
+- [x] testes do endpoint `GET /api/buses/{id}`;
+- [x] testes do endpoint `PUT /api/buses/{id}`;
+- [x] testes do endpoint `DELETE /api/buses/{id}`;
+- [x] testes de respostas de sucesso;
+- [x] testes de entradas inválidas;
+- [x] testes de registros inexistentes;
+- [x] testes de erros do repository;
+- [x] testes de métodos HTTP não permitidos;
+- [x] validação dos testes com `go test ./...`;
+- [x] execução detalhada dos testes com `go test -v ./...`;
+- [x] formatação dos testes com `gofmt`.
+
+Arquivo criado:
+
+```text
+backend/main_test.go
+```
+
+Estrutura atual relacionada aos testes:
+
+```text
+backend/
+├── database/
+│   └── oracle.go
+├── domain/
+│   ├── bus.go
+│   └── bus_test.go
+├── repository/
+│   └── bus_repository.go
+├── go.mod
+├── go.sum
+├── main.go
+└── main_test.go
+```
+
+Os testes dos handlers utilizam `httptest`, permitindo simular requisições HTTP e verificar os códigos de status e as respostas da API sem iniciar um servidor real.
+
+A interface `BusRepository` foi adicionada à camada HTTP para permitir que os handlers recebam uma implementação real do Repository ou um mock durante os testes.
+
+Resultado:
+
+```text
+go test ./...
+
+ok  	github.com/lgomesroc/bus-track-go
+ok  	github.com/lgomesroc/bus-track-go/domain
+```
+
+Execução detalhada:
+
+```text
+go test -v ./...
+
+PASS
+```
+
+Foram cobertos cenários de sucesso e erro, incluindo:
+
+```text
+GET    /health              → 200 OK
+POST   /health              → 405 Method Not Allowed
+
+GET    /api/buses           → 200 OK
+GET    /api/buses           → 500 Internal Server Error
+POST   /api/buses           → 201 Created
+POST   /api/buses           → 400 Bad Request
+
+GET    /api/buses/{id}      → 200 OK
+GET    /api/buses/{id}      → 400 Bad Request
+GET    /api/buses/{id}      → 404 Not Found
+GET    /api/buses/{id}      → 500 Internal Server Error
+
+PUT    /api/buses/{id}      → 200 OK
+PUT    /api/buses/{id}      → 400 Bad Request
+PUT    /api/buses/{id}      → 404 Not Found
+
+DELETE /api/buses/{id}      → 204 No Content
+DELETE /api/buses/{id}      → 404 Not Found
+DELETE /api/buses/{id}      → 500 Internal Server Error
+```
+
+#### Decisão técnica
+
+Os testes foram introduzidos utilizando recursos simples da biblioteca padrão do Go, principalmente `testing` e `net/http/httptest`.
+
+Para testar os handlers sem depender diretamente do Oracle, foi criada uma interface `BusRepository`. Dessa forma, os testes podem utilizar uma implementação simulada do repository.
+
+Não foi criada uma infraestrutura externa de testes, banco de dados específico para testes ou framework de mocking.
+
+A abordagem mantém os testes simples e adequados ao tamanho e objetivo do BusTrack Go.
+
+## Próximas aulas
 
 ### Aula 9 — Docker
 
