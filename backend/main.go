@@ -30,15 +30,32 @@ func main() {
 
 	busRepository := repository.NewBusRepository(db)
 
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/api/buses", busesHandler(busRepository))
-	http.HandleFunc("/api/buses/", busByIDHandler(busRepository))
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/health", healthHandler)
+	mux.HandleFunc("/api/buses", busesHandler(busRepository))
+	mux.HandleFunc("/api/buses/", busByIDHandler(busRepository))
 
 	log.Println("BusTrack API running on http://localhost:8080")
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8080", corsMiddleware(mux)); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
