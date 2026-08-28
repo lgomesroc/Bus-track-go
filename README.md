@@ -9,6 +9,7 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
 - [Tecnologias](#tecnologias)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Banco de dados](#banco-de-dados)
+- [Frontend](#frontend)
 - [Aulas](#aulas)
   - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
   - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
@@ -26,8 +27,8 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
   - [Aula 8 — Testes da API](#aula-8--testes-da-api)
     - [Decisão técnica](#decisão-técnica)
   - [Aula 9 — Docker](#aula-9--docker)
-- [Próximas aulas](#próximas-aulas)
   - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
   - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
 - [Evolução](#evolução)
@@ -65,17 +66,17 @@ github.com/godror/godror v0.51.4
 
 ### Vue.js
 
-Será utilizado no frontend da aplicação.
+Utilizado no frontend da aplicação.
 
-Vue.js foi escolhido por permitir construir uma interface web moderna mantendo uma curva de aprendizado adequada ao objetivo do projeto.
+Vue.js foi escolhido para construir uma interface web simples para consumo da API REST desenvolvida em Go.
 
-A aplicação frontend será desenvolvida utilizando JavaScript.
+O frontend utiliza Vue 3, Vue Router e JavaScript.
 
 ### JavaScript
 
-Será utilizado como linguagem do frontend.
+Utilizado como linguagem do frontend.
 
-A escolha mantém o frontend simples e evita adicionar TypeScript neste projeto, permitindo concentrar o aprendizado do BusTrack Go no backend em Go e na integração entre frontend e API.
+A escolha mantém o frontend simples e permite concentrar o aprendizado na integração entre Vue.js e a API REST desenvolvida em Go.
 
 ### Oracle
 
@@ -108,16 +109,13 @@ A solução de hospedagem será definida durante a etapa de deploy, priorizando 
 ## Estrutura do projeto
 
 ```text
-## Estrutura do projeto
-
-```text
 bus-track-go/
 ├── backend/
 │   ├── database/
 │   │   └── oracle.go
 │   ├── domain/
-│   │   ├── bus.go
-│   │   └── bus_test.go
+│   │   ├── bus_test.go
+│   │   └── bus.go
 │   ├── repository/
 │   │   └── bus_repository.go
 │   ├── go.mod
@@ -125,6 +123,14 @@ bus-track-go/
 │   ├── main_test.go
 │   └── main.go
 ├── frontend/
+│   ├── src
+│   │   ├── components
+│   │   │   └── BusList.vue
+│   │   ├── views
+│   │   │   └── HomeView.vue
+│   │   ├── App.vue
+│   ├── package.json
+│   └── vite.config.js
 └── README.md
 ```
 
@@ -159,6 +165,64 @@ Go API
 ```
 
 Caso ocorram dificuldades técnicas relevantes durante a integração, o **MySQL** poderá ser utilizado como alternativa.
+
+## Frontend
+
+O frontend do BusTrack Go foi desenvolvido utilizando Vue.js e JavaScript.
+
+A aplicação consome a API REST desenvolvida em Go e apresenta os dados dos ônibus armazenados no Oracle Database.
+
+Tecnologias utilizadas:
+
+```text
+Vue.js
+   ↓
+JavaScript
+   ↓
+Vue Router
+   ↓
+Fetch API
+   ↓
+Go API
+```
+
+### Estrutura do frontend
+```text
+frontend/
+├── src/
+│   ├── components/
+│   │   └── BusList.vue
+│   ├── router/
+│   │   └── index.js
+│   ├── views/
+│   │   └── HomeView.vue
+│   ├── App.vue
+│   └── main.js
+├── package.json
+└── ...
+```
+
+### Interface atual
+
+A primeira tela apresenta os ônibus cadastrados, consumindo os dados diretamente da API Go.
+
+São exibidas as seguintes informações:
+
+- prefixo;
+- modelo;
+- placa;
+- capacidade;
+- status.
+
+O frontend utiliza a `Fetch API` para realizar a comunicação HTTP com o backend.
+
+Endpoint consumido:
+
+```bash
+GET http://localhost:8080/api/buses
+```
+
+A comunicação entre frontend e backend utiliza CORS para permitir o acesso da aplicação Vue à API durante o desenvolvimento local.
 
 ## Aulas
 
@@ -685,32 +749,98 @@ GET /api/buses
 
 O endpoint `/api/buses` retornou dados persistidos no Oracle, confirmando a comunicação entre a API, o repository e o banco de dados.
 
-
-## Próximas aulas
-
 ### Aula 10 — Frontend Vue.js
 
-Agora entra o frontend.
+**Objetivo**: criar o frontend do BusTrack Go utilizando Vue.js e realizar a integração com a API REST desenvolvida em Go.
 
-- [ ] criação do projeto Vue;
-- [ ] JavaScript;
-- [ ] estrutura básica;
-- [ ] componentes;
-- [ ] páginas;
-- [ ] consumo da API.
+Foi realizado:
+
+- [x] criação do projeto Vue.js;
+- [x] utilização de JavaScript;
+- [x] instalação das dependências do frontend;
+- [x] criação da estrutura básica do projeto;
+- [x] utilização do Vue Router;
+- [x] criação da página `HomeView`;
+- [x] criação do componente `BusList`;
+- [x] utilização de `props`;
+- [x] utilização de `v-for`;
+- [x] consumo da API utilizando `Fetch API`;
+- [x] integração entre Vue.js e API Go;
+- [x] configuração de CORS no backend;
+- [x] exibição dos dados persistidos no Oracle;
+- [x] criação de uma interface simples para listagem dos ônibus;
+- [x] tratamento básico de carregamento;
+- [x] tratamento básico de erro na comunicação com a API;
+- [x] estilização básica com CSS.
+
+Estrutura do frontend:
+
+```text
+frontend/
+├── src/
+│   ├── components/
+│   │   └── BusList.vue
+│   ├── router/
+│   │   └── index.js
+│   ├── views/
+│   │   └── HomeView.vue
+│   ├── App.vue
+│   └── main.js
+├── package.json
+└── ...
+```
+
+Fluxo da aplicação:
+
+```text
+Vue.js
+   ↓
+Fetch API
+   ↓
+Go API
+   ↓
+Repository
+   ↓
+Oracle Database
+```
 
 Primeira tela:
 
 ```text
 BusTrack
-────────────────────────
 
 Ônibus cadastrados
 
-001   Mercedes-Benz   Ativo
-002   Volvo           Ativo
-003   Scania          Manutenção
+001 - Mercedes-Benz
+Placa: ABC1D23
+Capacidade: 40 passageiros
+Status: Ativo
+
+002 - Volvo
+Placa: DEF4G56
+Capacidade: 42 passageiros
+Status: Ativo
+
+003 - Scania
+Placa: GHI7J89
+Capacidade: 38 passageiros
+Status: Manutenção
 ```
+
+A interface foi mantida simples e compatível com o objetivo do projeto, priorizando a integração entre frontend, API e banco de dados em vez da utilização de bibliotecas adicionais de interface.
+
+#### Decisão técnica
+
+Foi utilizado Vue.js sem biblioteca adicional de componentes ou gerenciamento de estado.
+
+A comunicação com a API utiliza a `Fetch API`, evitando a introdução de dependências como Axios sem uma necessidade real.
+
+O Vue Router foi utilizado para estabelecer a estrutura de páginas do frontend.
+
+A interface foi mantida simples para que o foco permaneça na integração entre Vue.js, API REST em Go e Oracle Database.
+
+
+## Próximas aulas
 
 ### Aula 11 — CRUD no Vue
 
@@ -786,6 +916,12 @@ Testes da API
 Aula 9
   ↓
 Docker
+
+Aula 10
+  ↓
+Frontend Vue.js
+  ↓
+Integração com API Go
 ```
 
 ## Deploy e publicação
