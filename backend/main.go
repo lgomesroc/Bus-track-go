@@ -13,6 +13,14 @@ import (
 	"github.com/lgomesroc/bus-track-go/repository"
 )
 
+type BusRepository interface {
+	FindAll() ([]domain.Bus, error)
+	FindByID(id int) (*domain.Bus, error)
+	Create(bus domain.Bus) (*domain.Bus, error)
+	Update(id int, bus domain.Bus) (*domain.Bus, error)
+	Delete(id int) error
+}
+
 func main() {
 	db, err := database.NewOracleConnection()
 	if err != nil {
@@ -44,7 +52,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func busesHandler(busRepository *repository.BusRepository) http.HandlerFunc {
+func busesHandler(busRepository BusRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -83,7 +91,7 @@ func busesHandler(busRepository *repository.BusRepository) http.HandlerFunc {
 	}
 }
 
-func busByIDHandler(busRepository *repository.BusRepository) http.HandlerFunc {
+func busByIDHandler(busRepository BusRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := parseBusID(r.URL.Path)
 		if err != nil {
