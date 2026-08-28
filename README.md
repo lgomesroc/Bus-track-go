@@ -539,7 +539,6 @@ Foi realizado:
 - [x] criação de testes unitários;
 - [x] criação de testes para os handlers HTTP;
 - [x] utilização do pacote `net/http/httptest`;
-- [x] criação de um mock do `BusRepository` por meio de interface;
 - [x] testes do endpoint `GET /health`;
 - [x] testes de validação de dados;
 - [x] testes de parsing do ID;
@@ -555,6 +554,7 @@ Foi realizado:
 - [x] testes de métodos HTTP não permitidos;
 - [x] validação dos testes com `go test ./...`;
 - [x] execução detalhada dos testes com `go test -v ./...`;
+- [x] criação de um Fake Repository para os testes;
 - [x] formatação dos testes com `gofmt`.
 
 Arquivo criado:
@@ -582,7 +582,9 @@ backend/
 
 Os testes dos handlers utilizam `httptest`, permitindo simular requisições HTTP e verificar os códigos de status e as respostas da API sem iniciar um servidor real.
 
-A interface `BusRepository` foi adicionada à camada HTTP para permitir que os handlers recebam uma implementação real do Repository ou um mock durante os testes.
+A interface `BusRepository` foi adicionada à camada HTTP para permitir que os handlers recebam uma implementação real do Repository ou uma implementação falsa durante os testes.
+
+Foi criado um **Fake Repository** para simular as operações de persistência, permitindo testar os handlers sem depender do Oracle Database.
 
 Resultado:
 
@@ -630,7 +632,9 @@ DELETE /api/buses/{id}      → 500 Internal Server Error
 
 Os testes foram introduzidos utilizando recursos simples da biblioteca padrão do Go, principalmente `testing` e `net/http/httptest`.
 
-Para testar os handlers sem depender diretamente do Oracle, foi criada uma interface `BusRepository`. Dessa forma, os testes podem utilizar uma implementação simulada do repository.
+Para testar os handlers sem depender diretamente do Oracle, foi criada uma interface `BusRepository` e uma implementação Fake Repository utilizada exclusivamente pelos testes.
+
+O Fake Repository permite simular cenários de sucesso, registros inexistentes e erros de persistência sem realizar operações reais no banco de dados.
 
 Não foi criada uma infraestrutura externa de testes, banco de dados específico para testes ou framework de mocking.
 
