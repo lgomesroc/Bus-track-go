@@ -25,8 +25,8 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
     - [Decisão técnica](#decisão-técnica)
   - [Aula 8 — Testes da API](#aula-8--testes-da-api)
     - [Decisão técnica](#decisão-técnica)
-- [Próximas aulas](#próximas-aulas)
   - [Aula 9 — Docker](#aula-9--docker)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
   - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
@@ -640,27 +640,53 @@ Não foi criada uma infraestrutura externa de testes, banco de dados específico
 
 A abordagem mantém os testes simples e adequados ao tamanho e objetivo do BusTrack Go.
 
-## Próximas aulas
-
 ### Aula 9 — Docker
 
-Agora vamos organizar o ambiente.
+Nesta aula, o ambiente de desenvolvimento foi organizado utilizando Docker para executar o Oracle Database em um container.
 
-- [ ] Docker;
-- [ ] container Oracle;
-- [ ] variáveis de ambiente;
-- [ ] conexão da aplicação com o banco;
-- [ ] configuração para desenvolvimento.
+#### Conteúdo da aula
 
-A ideia é chegar a algo próximo de:
+- [x] Docker;
+- [x] Oracle Database em container;
+- [x] variáveis de ambiente;
+- [x] conexão da aplicação Go com o Oracle;
+- [x] configuração do ambiente de desenvolvimento;
+- [x] proteção das credenciais com `.env`;
+- [x] criação do `.env.example`.
+
+#### Configuração do Oracle
+
+O Oracle Database é executado no container `bustrack-oracle`, utilizando a porta `1521` e o service name `FREEPDB1`.
+
+A aplicação utiliza as seguintes variáveis de ambiente:
+
+```env
+ORACLE_USER=system
+ORACLE_PASSWORD=sua_senha
+ORACLE_CONNECT_STRING=localhost:1521/FREEPDB1
+```
+
+As credenciais reais ficam no arquivo `.env`, que não é versionado pelo Git. O arquivo `.env.example` é utilizado como modelo para configuração do ambiente.
+
+#### Conexão com o banco
+
+A conexão com o Oracle foi alterada para utilizar variáveis de ambiente, removendo as credenciais diretamente do código.
+
+O pacote `godror` continua sendo utilizado como driver para comunicação entre a aplicação Go e o Oracle Database.
+
+#### Validação
+
+A aplicação foi executada com o Oracle em funcionamento e a conexão foi validada através dos endpoints:
 
 ```text
-Docker
- └── Oracle
+GET /health
+GET /api/buses
+```
 
-Go API
- └── conecta no Oracle
- ```
+O endpoint `/api/buses` retornou dados persistidos no Oracle, confirmando a comunicação entre a API, o repository e o banco de dados.
+
+
+## Próximas aulas
 
 ### Aula 10 — Frontend Vue.js
 
