@@ -27,9 +27,13 @@ O projeto foi criado com foco em aprendizado prático de desenvolvimento backend
   - [Aula 8 — Testes da API](#aula-8--testes-da-api)
     - [Decisão técnica](#decisão-técnica)
   - [Aula 9 — Docker](#aula-9--docker)
+    - [Configuração do Oracle](#configuração-do-oracle)
+    - [Conexão com o banco](#conexão-com-o-banco)
   - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
-- [Próximas aulas](#próximas-aulas)
+    - [Decisão técnica](#decisão-técnica)
   - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
+    - [Decisão técnica](#decisão-técnica)
+- [Próximas aulas](#próximas-aulas)
   - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
 - [Evolução](#evolução)
 - [Deploy e publicação](#deploy-e-publicação)
@@ -115,9 +119,15 @@ bus-track-go/
 │   │   └── oracle.go
 │   ├── domain/
 │   │   ├── bus_test.go
-│   │   └── bus.go
+│   │   ├── bus.go
+│   │   ├── line_test.go
+│   │   ├── line.go
+│   │   ├── trip_test.go
+│   │   └── trip.go
 │   ├── repository/
-│   │   └── bus_repository.go
+│   │   ├── bus_repository.go
+│   │   ├── line_repository.go
+│   │   └── trip_repository.go
 │   ├── go.mod
 │   ├── go.sum
 │   ├── main_test.go
@@ -126,9 +136,12 @@ bus-track-go/
 │   ├── src
 │   │   ├── components
 │   │   │   └── BusList.vue
+│   │   ├── router/ │
+|   │   │   └── index.js
 │   │   ├── views
 │   │   │   └── HomeView.vue
 │   │   ├── App.vue
+│   │   └── main.js
 │   ├── package.json
 │   └── vite.config.js
 └── README.md
@@ -136,11 +149,47 @@ bus-track-go/
 
 O diretório `backend` concentra a API desenvolvida em Go.<br>
 
-O diretório `domain` contém as entidades e testes relacionados ao domínio da aplicação.
+O diretório `domain` contém as entidades da aplicação e seus respectivos testes:
 
-O diretório `repository` concentra a persistência dos dados e a comunicação entre a aplicação e o banco de dados.
+```text
+Bus
+Line
+Trip
+```
 
-O diretório `frontend` será utilizado posteriormente para a aplicação Vue.js.
+O diretório `repository` concentra a persistência dos dados e a comunicação com o Oracle Database:
+
+```text
+BusRepository
+LineRepository
+TripRepository
+```
+
+O arquivo `main.go` concentra a configuração das rotas HTTP, handlers, validações e inicialização da API.
+
+O arquivo `main_test.go` contém os testes dos handlers HTTP utilizando httptest e Fake Repositories.
+
+O diretório `frontend` concentra a aplicação Vue.js responsável pela interface e pelo consumo da API Go.
+
+O componente `BusList.vue` é responsável pela apresentação e operações relacionadas aos ônibus, enquanto HomeView.vue organiza a interface principal da aplicação.
+
+O diretório `router` contém a configuração do Vue Router.
+
+Atualmente, a aplicação possui integração entre:
+
+```text
+Vue.js
+   ↓
+Fetch API
+   ↓
+Go API
+   ↓
+Repositories
+   ↓
+Oracle Database
+```
+
+Nenhuma nova camada de Service foi criada. A estrutura permanece simples, com as responsabilidades distribuídas entre domínio, HTTP e persistência conforme as necessidades que surgiram durante a evolução do projeto.
 
 ## Banco de dados
 
@@ -839,31 +888,85 @@ O Vue Router foi utilizado para estabelecer a estrutura de páginas do frontend.
 
 A interface foi mantida simples para que o foco permaneça na integração entre Vue.js, API REST em Go e Oracle Database.
 
-
-## Próximas aulas
-
 ### Aula 11 — CRUD no Vue
 
-Integração completa.
+**Objetivo**: ampliar o frontend Vue.js para permitir o gerenciamento de ônibus, linhas e registro de viagens, integrando as operações diretamente com a API Go.
 
-- [ ] listar ônibus;
-- [ ] cadastrar;
-- [ ] editar;
-- [ ] excluir;
-- [ ] formulário;
-- [ ] tratamento de erros;
-- [ ] loading;
-- [ ] comunicação com API Go.
+Foi realizado:
 
-Nesse ponto teremos:
+* [x] listagem de ônibus;
+* [x] cadastro de ônibus;
+* [x] edição de ônibus;
+* [x] exclusão de ônibus;
+* [x] formulário de cadastro e edição;
+* [x] alteração do status do ônibus;
+* [x] tratamento básico de erros;
+* [x] integração com `GET /api/buses`;
+* [x] integração com `POST /api/buses`;
+* [x] integração com `PUT /api/buses/{id}`;
+* [x] integração com `DELETE /api/buses/{id}`;
+* [x] cadastro de linhas;
+* [x] listagem de linhas;
+* [x] cálculo da média de passageiros por linha;
+* [x] registro de viagens;
+* [x] listagem das viagens registradas;
+* [x] integração com `GET /api/trips`;
+* [x] integração com `POST /api/trips`;
+* [x] atualização imediata da interface após o registro de uma viagem;
+* [x] validação do fluxo completo entre Vue.js, API Go e Oracle Database.
+
+O frontend passou a utilizar a API para realizar as operações de CRUD dos ônibus e também para cadastrar e consultar linhas e viagens.
+
+Fluxo atual:
 
 ```text
 Vue.js
-   ↓ HTTP
+   ↓
+Fetch API
+   ↓
 Go API
    ↓
-Oracle
+Repository
+   ↓
+Oracle Database
 ```
+
+A interface permite:
+
+```text
+Ônibus
+├── Cadastrar
+├── Listar
+├── Editar
+└── Excluir
+
+Linhas
+├── Cadastrar
+├── Listar
+└── Exibir média de passageiros
+
+Viagens
+├── Registrar
+└── Listar
+```
+
+Após o registro de uma viagem, o novo registro é apresentado imediatamente na interface, sem necessidade de atualizar manualmente a página.
+
+#### Decisão técnica
+
+O frontend continua utilizando apenas Vue.js, JavaScript, Vue Router, Fetch API e CSS básico.
+
+Não foram adicionadas bibliotecas de componentes, gerenciamento global de estado ou outras abstrações para resolver as operações do CRUD.
+
+A edição e exclusão dos ônibus foram mantidas simples, utilizando diretamente os endpoints existentes da API.
+
+Também não foi adicionada uma camada Service ao backend para o registro de viagens. O fluxo continua utilizando o Repository existente, mantendo a arquitetura compatível com o tamanho e o objetivo do projeto.
+
+Durante a integração das viagens, foi identificado um problema na recuperação do registro recém-criado no Oracle. O `INSERT` era executado corretamente, mas a aplicação não conseguia recuperar a viagem criada. A consulta foi ajustada para localizar corretamente o registro persistido, mantendo o fluxo simples.
+
+O objetivo continua sendo adicionar complexidade somente quando existir uma necessidade real.
+
+## Próximas aulas
 
 ### Aula 12 — Fechamento e documentação
 
@@ -922,6 +1025,14 @@ Aula 10
 Frontend Vue.js
   ↓
 Integração com API Go
+  ↓
+Aula 11
+  ↓
+CRUD no Vue
+  ↓
+Linhas e viagens
+  ↓
+Integração completa com Oracle
 ```
 
 ## Deploy e publicação
