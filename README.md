@@ -1,114 +1,82 @@
 # BusTrack Go
 
-Backend de uma aplicação de gerenciamento de ônibus, desenvolvido em Go.
+Backend e frontend de uma aplicação de gerenciamento de transporte urbano, desenvolvida com Go, Vue.js e Oracle Database.
 
-O projeto foi criado com foco em aprendizado prático de desenvolvimento backend, mantendo uma arquitetura simples e evoluindo a aplicação de forma incremental.
+![BusTrack Go](./tela_app_bustrack.png)
 
-## Índice
+O BusTrack Go foi desenvolvido como projeto de aprendizado prático e portfólio, evoluindo de uma API HTTP simples para uma aplicação completa com persistência em banco de dados, testes automatizados, Docker e interface web.
 
-- [Tecnologias](#tecnologias)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Banco de dados](#banco-de-dados)
-- [Frontend](#frontend)
-- [Aulas](#aulas)
-  - [Aula 1 — Inicialização do BusTrack Go](#aula-1--inicialização-do-bustrack-go)
-  - [Aula 2 — Primeira API HTTP em Go](#aula-2--primeira-api-http-em-go)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 3 — Modelando o domínio](#aula-3--modelando-o-domínio)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 4 — CRUD de ônibus em memória](#aula-4--crud-de-ônibus-em-memória)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 5 — Persistência com Oracle](#aula-5--persistência-com-oracle)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 6 — Repository](#aula-6--repository)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 7 — Validação e tratamento de erros](#aula-7--validação-e-tratamento-de-erros)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 8 — Testes da API](#aula-8--testes-da-api)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 9 — Docker](#aula-9--docker)
-    - [Configuração do Oracle](#configuração-do-oracle)
-    - [Conexão com o banco](#conexão-com-o-banco)
-  - [Aula 10 — Frontend Vue.js](#aula-10--frontend-vuejs)
-    - [Decisão técnica](#decisão-técnica)
-  - [Aula 11 — CRUD no Vue](#aula-11--crud-no-vue)
-    - [Decisão técnica](#decisão-técnica)
-- [Próximas aulas](#próximas-aulas)
-  - [Aula 12 — Fechamento e documentação](#aula-12--fechamento-e-documentação)
-- [Evolução](#evolução)
-- [Deploy e publicação](#deploy-e-publicação)
+**Status:** Concluído
+
+## Funcionalidades
+
+* Cadastro, consulta, edição e exclusão de ônibus;
+* alteração do status dos ônibus;
+* cadastro e listagem de linhas;
+* cálculo da média de passageiros por linha;
+* registro e listagem de viagens;
+* persistência dos dados em Oracle Database;
+* API REST desenvolvida em Go;
+* frontend desenvolvido com Vue.js;
+* integração entre frontend, backend e banco de dados;
+* validação de dados e tratamento de erros;
+* testes automatizados dos handlers HTTP;
+* execução do Oracle Database em container Docker.
 
 ## Tecnologias
 
-### Go
+### Backend
 
-Utilizado no backend da aplicação.
+* Go
+* `net/http`
+* `encoding/json`
+* `database/sql`
+* Oracle Database
+* Oracle Instant Client
+* `github.com/godror/godror`
+* Docker
+* Git
 
-Go foi escolhido para este projeto porque permite construir uma API HTTP com uma base enxuta e próxima dos fundamentos da linguagem, sem exigir um framework para começar.
+### Frontend
 
-A evolução do backend será feita de forma incremental, começando pela biblioteca padrão e adicionando outras dependências somente quando houver uma necessidade real.
+* Vue 3
+* JavaScript
+* Vue Router
+* Fetch API
+* Vite
+* CSS
 
-### Oracle Instant Client
+## Arquitetura
 
-Utilizado para permitir que a aplicação Go se comunique com o Oracle Database por meio do driver `godror`.
-
-O Oracle Instant Client fornece as bibliotecas nativas necessárias para a conexão da aplicação com o banco de dados.
-
-Nesta etapa foi utilizado o Oracle Instant Client 23.26.
-
-### godror
-
-Driver utilizado para integração entre Go e Oracle Database.
-
-O `godror` é utilizado em conjunto com o pacote `database/sql`, permitindo que o backend execute operações SQL no Oracle utilizando a API padrão de acesso a bancos de dados do Go.
-
-Versão utilizada:
+A aplicação utiliza uma arquitetura simples, organizada de acordo com as necessidades que surgiram durante o desenvolvimento.
 
 ```text
-github.com/godror/godror v0.51.4
+Vue.js
+   ↓
+Fetch API
+   ↓
+Go HTTP API
+   ↓
+Repository
+   ↓
+Oracle Database
 ```
 
-### Vue.js
+O frontend é responsável pela interface e pela comunicação HTTP com a API.
 
-Utilizado no frontend da aplicação.
+A API Go concentra os handlers HTTP, validações e regras necessárias para atender às requisições.
 
-Vue.js foi escolhido para construir uma interface web simples para consumo da API REST desenvolvida em Go.
+A camada `repository` concentra as operações de persistência no Oracle Database.
 
-O frontend utiliza Vue 3, Vue Router e JavaScript.
+O domínio contém as entidades utilizadas pela aplicação:
 
-### JavaScript
+```text
+Bus
+Line
+Trip
+```
 
-Utilizado como linguagem do frontend.
-
-A escolha mantém o frontend simples e permite concentrar o aprendizado na integração entre Vue.js e a API REST desenvolvida em Go.
-
-### Oracle
-
-Será utilizado como banco de dados principal.
-
-Oracle foi escolhido para permitir trabalhar com um banco relacional utilizado em ambientes corporativos, incluindo conexão, SQL, transações e persistência de dados.
-
-A aplicação Go utiliza o pacote `database/sql` em conjunto com o driver `godror` e o Oracle Instant Client para realizar a comunicação com o banco.
-
-### Docker
-
-Será utilizado para facilitar a criação e reprodução do ambiente de desenvolvimento.
-
-O Docker também permitirá manter dependências de infraestrutura isoladas da máquina local e preparar o projeto para ambientes de publicação.
-
-A utilização do Docker será abordada na Aula 9.
-
-### Git e GitHub
-
-Git será utilizado para controle de versão e o GitHub será utilizado para hospedagem do código-fonte.
-
-O repositório público também faz parte do objetivo de portfólio do projeto, permitindo que recrutadores e outros desenvolvedores tenham acesso ao código e à evolução da aplicação.
-
-### Deploy
-
-O projeto será desenvolvido considerando sua publicação em ambiente de produção.
-
-A solução de hospedagem será definida durante a etapa de deploy, priorizando alternativas gratuitas ou com camada gratuita suficiente para manter a aplicação disponível como projeto de portfólio.
+Não foi adicionada uma camada Service. A decisão foi manter a arquitetura proporcional ao tamanho e ao objetivo do projeto, evitando abstrações sem uma necessidade concreta.
 
 ## Estrutura do projeto
 
@@ -118,293 +86,192 @@ bus-track-go/
 │   ├── database/
 │   │   └── oracle.go
 │   ├── domain/
-│   │   ├── bus_test.go
 │   │   ├── bus.go
-│   │   ├── line_test.go
+│   │   ├── bus_test.go
 │   │   ├── line.go
-│   │   ├── trip_test.go
-│   │   └── trip.go
+│   │   ├── line_test.go
+│   │   ├── trip.go
+│   │   └── trip_test.go
 │   ├── repository/
 │   │   ├── bus_repository.go
 │   │   ├── line_repository.go
 │   │   └── trip_repository.go
 │   ├── go.mod
 │   ├── go.sum
-│   ├── main_test.go
-│   └── main.go
+│   ├── main.go
+│   └── main_test.go
 ├── frontend/
-│   ├── src
-│   │   ├── components
+│   ├── src/
+│   │   ├── components/
 │   │   │   └── BusList.vue
-│   │   ├── router/ │
-|   │   │   └── index.js
-│   │   ├── views
+│   │   ├── router/
+│   │   │   └── index.js
+│   │   ├── views/
 │   │   │   └── HomeView.vue
 │   │   ├── App.vue
 │   │   └── main.js
 │   ├── package.json
+│   ├── package-lock.json
 │   └── vite.config.js
+├── .env.example
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
-O diretório `backend` concentra a API desenvolvida em Go.<br>
-
-O diretório `domain` contém as entidades da aplicação e seus respectivos testes:
-
-```text
-Bus
-Line
-Trip
-```
-
-O diretório `repository` concentra a persistência dos dados e a comunicação com o Oracle Database:
-
-```text
-BusRepository
-LineRepository
-TripRepository
-```
-
-O arquivo `main.go` concentra a configuração das rotas HTTP, handlers, validações e inicialização da API.
-
-O arquivo `main_test.go` contém os testes dos handlers HTTP utilizando httptest e Fake Repositories.
-
-O diretório `frontend` concentra a aplicação Vue.js responsável pela interface e pelo consumo da API Go.
-
-O componente `BusList.vue` é responsável pela apresentação e operações relacionadas aos ônibus, enquanto HomeView.vue organiza a interface principal da aplicação.
-
-O diretório `router` contém a configuração do Vue Router.
-
-Atualmente, a aplicação possui integração entre:
-
-```text
-Vue.js
-   ↓
-Fetch API
-   ↓
-Go API
-   ↓
-Repositories
-   ↓
-Oracle Database
-```
-
-Nenhuma nova camada de Service foi criada. A estrutura permanece simples, com as responsabilidades distribuídas entre domínio, HTTP e persistência conforme as necessidades que surgiram durante a evolução do projeto.
-
 ## Banco de dados
 
-O banco de dados principal do projeto é o **Oracle**.
+O projeto utiliza **Oracle Database** como banco de dados principal.
 
-A aplicação utiliza o pacote padrão `database/sql` do Go em conjunto com o driver `godror` para realizar a comunicação com o Oracle.
-
-O ambiente também utiliza o **Oracle Instant Client**, responsável pelas bibliotecas nativas necessárias para a conexão.
-
-A conexão atualmente utiliza:
+A comunicação entre Go e Oracle utiliza:
 
 ```text
-Oracle Database
-    ↑
-Oracle Instant Client
-    ↑
-godror
-    ↑
+Go
+ ↓
 database/sql
-    ↑
-Go API
+ ↓
+godror
+ ↓
+Oracle Instant Client
+ ↓
+Oracle Database
 ```
 
-Caso ocorram dificuldades técnicas relevantes durante a integração, o **MySQL** poderá ser utilizado como alternativa.
+O projeto utiliza o Oracle Instant Client para disponibilizar as bibliotecas nativas necessárias à comunicação com o banco.
 
-## Frontend
+As operações de persistência são realizadas pela camada `repository`.
 
-O frontend do BusTrack Go foi desenvolvido utilizando Vue.js e JavaScript.
+## Docker
 
-A aplicação consome a API REST desenvolvida em Go e apresenta os dados dos ônibus armazenados no Oracle Database.
+O Oracle Database utilizado no ambiente de desenvolvimento é executado em um container Docker.
 
-Tecnologias utilizadas:
+O container utilizado pelo projeto possui:
 
 ```text
-Vue.js
-   ↓
-JavaScript
-   ↓
-Vue Router
-   ↓
-Fetch API
-   ↓
-Go API
+Nome: bustrack-oracle
+Porta: 1521
+Service Name: FREEPDB1
 ```
 
-### Estrutura do frontend
-```text
-frontend/
-├── src/
-│   ├── components/
-│   │   └── BusList.vue
-│   ├── router/
-│   │   └── index.js
-│   ├── views/
-│   │   └── HomeView.vue
-│   ├── App.vue
-│   └── main.js
-├── package.json
-└── ...
-```
+O Docker permite manter o banco de dados isolado do sistema operacional e facilita a reprodução do ambiente local.
 
-### Interface atual
-
-A primeira tela apresenta os ônibus cadastrados, consumindo os dados diretamente da API Go.
-
-São exibidas as seguintes informações:
-
-- prefixo;
-- modelo;
-- placa;
-- capacidade;
-- status.
-
-O frontend utiliza a `Fetch API` para realizar a comunicação HTTP com o backend.
-
-Endpoint consumido:
+Para iniciar um container Oracle já criado:
 
 ```bash
-GET http://localhost:8080/api/buses
+docker start bustrack-oracle
 ```
 
-A comunicação entre frontend e backend utiliza CORS para permitir o acesso da aplicação Vue à API durante o desenvolvimento local.
+Caso o nome do container seja diferente no ambiente local, utilize:
 
-## Aulas
+```bash
+docker ps -a
+```
 
-### Aula 1 — Inicialização do BusTrack Go
+para identificar o container Oracle disponível.
 
-**Objetivo**: preparar a estrutura inicial do projeto e criar a primeira aplicação Go.
+## Configuração do ambiente
 
-Foi realizado:
+### Variáveis de ambiente
 
-- [x] criação da estrutura inicial do projeto;
-- [x] separação entre backend e frontend;
-- [x] criação e validação do go.mod;
-- [x] definição do módulo github.com/lgomesroc/bus-track-go;
-- [x] criação do main.go;
-- [x] utilização de package main;
-- [x] criação da func main();
-- [x] execução da aplicação com go run main.go;
-- [x] validação da saída BusTrack Go;
-- [x] inicialização do repositório Git;
-- [x] definição da branch principal como main;
-- [x] criação do repositório público no GitHub;
-- [x] configuração do remote;
-- [x] primeiro commit e envio para o GitHub.
-
-Resultado:
+A aplicação Go utiliza as seguintes variáveis:
 
 ```text
-BusTrack Go
+ORACLE_USER
+ORACLE_PASSWORD
+ORACLE_CONNECT_STRING
 ```
 
-### Aula 2 — Primeira API HTTP em Go
+Um arquivo `.env.example` está disponível no projeto como referência.
 
-**Objetivo**: criar a primeira API HTTP do BusTrack Go utilizando apenas a biblioteca padrão do Go.
+O arquivo `.env` não é versionado pelo Git.
 
-Foi realizado:
+Para verificar se o arquivo está sendo ignorado:
 
-- [x] utilização do pacote net/http;
-- [x] criação de um servidor HTTP;
-- [x] criação da rota /health;
-- [x] criação de um handler HTTP;
-- [x] utilização do método GET;
-- [x] validação do método HTTP recebido;
-- [x] retorno do status 200 OK;
-- [x] retorno do status 405 Method Not Allowed para métodos não permitidos;
-- [x] utilização do status 404 Not Found para rotas inexistentes;
-- [x] definição do Content-Type como application/json;
-- [x] utilização do pacote encoding/json;
-- [x] serialização da resposta para JSON;
-- [x] criação do endpoint GET /health.
+```bash
+git check-ignore -v .env
+```
 
-Endpoint:
+## Como executar o projeto
+
+Para executar a aplicação localmente, é necessário ter instalado:
+
+* Go;
+* Node.js;
+* npm;
+* Docker;
+* Oracle Instant Client.
+
+O Oracle Database é executado através do Docker.
+
+### 1. Iniciar o Oracle Database
+
+Inicie o container Oracle:
+
+```bash
+docker start bustrack-oracle
+```
+
+Confirme se o container está em execução:
+
+```bash
+docker ps
+```
+
+O Oracle deve estar disponível na porta:
 
 ```text
-GET /health
+1521
 ```
 
-Resposta:
+e utilizando o service name:
 
 ```text
-{
-  "status": "ok"
-}
+FREEPDB1
 ```
 
-Comportamentos validados:
+### 2. Executar o backend Go
+
+Abra um terminal e acesse o diretório do backend:
+
+```bash
+cd ~/projetos/bus-track-go/backend
+```
+
+Configure as variáveis de ambiente:
+
+```bash
+export ORACLE_USER=system
+export ORACLE_PASSWORD=BusTrack123
+export ORACLE_CONNECT_STRING=localhost:1521/FREEPDB1
+```
+
+As variáveis podem ser verificadas com:
+
+```bash
+echo $ORACLE_USER
+echo $ORACLE_PASSWORD
+echo $ORACLE_CONNECT_STRING
+```
+
+Depois, execute a API:
+
+```bash
+go run .
+```
+
+A API ficará disponível em:
 
 ```text
-GET  /health  → 200 OK
-POST /health  → 405 Method Not Allowed
-GET  /buses   → 404 Not Found
+http://localhost:8080
 ```
 
-#### Decisão técnica
-
-Nesta etapa não foi utilizado nenhum framework HTTP.
-
-A implementação utiliza somente recursos da biblioteca padrão do Go, principalmente net/http e encoding/json.
-
-A decisão foi intencional: antes de adicionar abstrações ou frameworks, o projeto deve estabelecer uma compreensão dos fundamentos de HTTP, incluindo rotas, métodos, status, headers e respostas JSON.
-
-O objetivo do BusTrack Go é evoluir de forma incremental, adicionando complexidade somente quando ela resolver um problema real do projeto.
-
-### Aula 3 — Modelando o domínio
-
-**Objetivo**: definir o modelo de domínio `Bus` e estabelecer a primeira separação entre o domínio da aplicação e a camada HTTP.
-
-Foi realizado:
-
-- [x] criação do package `domain`;
-- [x] criação da struct `Bus`;
-- [x] definição dos campos `ID`, `Prefix`, `LicensePlate`, `Model`, `Capacity` e `Status`;
-- [x] utilização dos tipos `int` e `string`;
-- [x] utilização de struct tags para serialização JSON;
-- [x] utilização do `encoding/json`;
-- [x] teste de conversão de `Bus` para JSON com `json.Marshal`;
-- [x] teste de conversão de JSON para `Bus` com `json.Unmarshal`;
-- [x] criação de testes unitários para o domínio;
-- [x] validação dos testes com `go test ./...`;
-- [x] manutenção da separação básica entre domínio e HTTP.
-
-Modelo:
+Health check:
 
 ```text
-Bus
-├── ID
-├── Prefix
-├── LicensePlate
-├── Model
-├── Capacity
-└── Status
+GET http://localhost:8080/health
 ```
 
-A struct foi definida em:
-
-```text
-backend/domain/bus.go
-```
-
-Os testes foram definidos em:
-
-```text
-backend/domain/bus_test.go
-```
-
-O domínio não possui dependência direta de `net/http`. A responsabilidade do Bus é representar uma entidade do negócio, enquanto a camada HTTP continuará responsável pela comunicação com a API.
-
-Também foi validado que a criação do domínio não alterou o funcionamento da API existente:
-
-```text
-GET /health → 200 OK
-```
-
-Resposta:
+Resposta esperada:
 
 ```json
 {
@@ -412,39 +279,49 @@ Resposta:
 }
 ```
 
-#### Decisão técnica
+### 3. Executar o frontend Vue.js
 
-O domínio foi separado da camada HTTP antes da implementação do CRUD.
+Em outro terminal:
 
-Neste momento não foram criadas camadas de Service, Repository ou outras abstrações. A arquitetura continuará evoluindo conforme surgirem necessidades reais no projeto.
+```bash
+cd ~/projetos/bus-track-go/frontend
+```
 
-Essa abordagem mantém o BusTrack Go simples e permite compreender cada responsabilidade antes de adicionar novas camadas.
+Instale as dependências do projeto:
 
-### Aula 4 — CRUD de ônibus em memória
+```bash
+npm install
+```
 
-**Objetivo**: implementar o CRUD de ônibus utilizando armazenamento temporário em memória, antes da introdução do Oracle.
+As dependências do Vue.js, Vue Router e demais pacotes necessários são definidas no `package.json` e instaladas pelo `npm install`.
 
-Foi realizado:
+Depois, execute o servidor de desenvolvimento:
 
-- [x] criação do armazenamento de ônibus em memória;
-- [x] implementação do endpoint `GET /api/buses`;
-- [x] implementação do endpoint `GET /api/buses/{id}`;
-- [x] implementação do endpoint `POST /api/buses`;
-- [x] implementação do endpoint `PUT /api/buses/{id}`;
-- [x] implementação do endpoint `DELETE /api/buses/{id}`;
-- [x] geração do próximo ID para novos ônibus em memória;
-- [x] tratamento de ID inválido com HTTP 400;
-- [x] tratamento de ônibus inexistente com HTTP 404;
-- [x] tratamento de métodos HTTP não permitidos com HTTP 405;
-- [x] retorno HTTP 201 Created para criação;
-- [x] retorno HTTP 204 No Content para exclusão;
-- [x] validação manual dos endpoints utilizando `curl`;
-- [x] formatação do código com `gofmt`;
-- [x] validação do projeto com `go test ./...`.
+```bash
+npm run dev
+```
 
-Endpoints implementados:
+O Vite exibirá no terminal o endereço local da aplicação, normalmente:
 
 ```text
+http://localhost:5173
+```
+
+O frontend se comunica com a API Go através da Fetch API.
+
+## API
+
+### Health Check
+
+```http
+GET /health
+```
+
+Retorna o estado da API.
+
+### Ônibus
+
+```http
 GET    /api/buses
 GET    /api/buses/{id}
 POST   /api/buses
@@ -452,599 +329,205 @@ PUT    /api/buses/{id}
 DELETE /api/buses/{id}
 ```
 
-O armazenamento utilizado nesta etapa é um slice em memória:
+As operações permitem cadastrar, consultar, editar e excluir ônibus.
 
-```text
-API HTTP
-   ↓
-[]Bus
+### Linhas
+
+```http
+GET  /api/lines
+POST /api/lines
 ```
 
-Os dados são perdidos quando a aplicação é reiniciada. A persistência será implementada posteriormente com Oracle.
+As linhas possuem informações relacionadas ao itinerário e permitem apresentar a média de passageiros registrada para cada linha.
 
-Comportamentos validados:
+### Viagens
 
-```text
-GET    /api/buses        → 200 OK
-GET    /api/buses/1      → 200 OK
-GET    /api/buses/999    → 404 Not Found
-GET    /api/buses/abc    → 400 Bad Request
-
-POST   /api/buses        → 201 Created
-
-PUT    /api/buses/3      → 200 OK
-PUT    /api/buses/999    → 404 Not Found
-
-DELETE /api/buses/3      → 204 No Content
-DELETE /api/buses/999    → 404 Not Found
+```http
+GET  /api/trips
+POST /api/trips
 ```
 
-#### Decisão técnica
+As viagens podem ser registradas e consultadas através da API.
 
-O CRUD foi implementado diretamente na camada HTTP e utiliza memória como armazenamento temporário.
+Após o registro de uma viagem, o frontend atualiza a interface para apresentar imediatamente o novo registro.
 
-Nesta etapa não foram criadas camadas de Service ou Repository, nem interfaces para abstrações futuras.
+## Testes
 
-A decisão mantém a implementação simples e permite compreender o funcionamento do CRUD, dos métodos HTTP, dos status de resposta e da manipulação de dados em Go antes da introdução da persistência com Oracle.
+O backend possui testes automatizados utilizando recursos da biblioteca padrão do Go.
 
-A persistência será implementada posteriormente com Oracle.
+Foram utilizados:
+
+* `testing`;
+* `net/http/httptest`;
+* Fake Repository.
+
+Os testes cobrem handlers HTTP, validações, respostas de sucesso, registros inexistentes e erros de persistência.
+
+Para executar os testes:
+
+```bash
+cd ~/projetos/bus-track-go/backend
+go test ./...
+```
+
+Para executar os testes com detalhes:
+
+```bash
+go test -v ./...
+```
+
+Para verificar a compilação:
+
+```bash
+go build ./...
+```
+
+## Histórico de desenvolvimento
+
+### Aula 1 — Inicialização
+
+Criação da estrutura inicial do projeto, configuração do módulo Go, aplicação inicial e integração com Git e GitHub.
+
+### Aula 2 — API HTTP
+
+Criação da primeira API HTTP utilizando a biblioteca padrão do Go, incluindo rota de health check, métodos HTTP, status codes e respostas JSON.
+
+### Aula 3 — Domínio
+
+Criação do domínio `Bus`, definição dos seus atributos e primeiros testes de serialização e desserialização JSON.
+
+### Aula 4 — CRUD em memória
+
+Implementação das operações de criação, consulta, atualização e exclusão de ônibus utilizando armazenamento temporário em memória.
 
 ### Aula 5 — Persistência com Oracle
 
-**Objetivo**: substituir o armazenamento temporário em memória por persistência real utilizando Oracle Database.
-
-Foi realizado:
-
-- [x] configuração do Oracle Database utilizado pelo projeto;
-- [x] instalação do Oracle Instant Client;
-- [x] configuração das bibliotecas do Oracle no Linux;
-- [x] validação das bibliotecas nativas necessárias para o Oracle;
-- [x] instalação do driver `github.com/godror/godror`;
-- [x] integração do `godror` com `database/sql`;
-- [x] criação da conexão com o Oracle;
-- [x] criação do package `database`;
-- [x] criação da função `NewOracleConnection`;
-- [x] validação da conexão Go → Oracle;
-- [x] execução de `INSERT`;
-- [x] execução de `SELECT`;
-- [x] execução de `UPDATE`;
-- [x] execução de `DELETE`;
-- [x] substituição do armazenamento em memória pela persistência no Oracle;
-- [x] validação da aplicação utilizando `go test ./...`;
-- [x] validação da compilação utilizando `go build ./...`.
-
-A conexão foi centralizada em:
-
-```text
-backend/database/oracle.go
-```
-
-A aplicação passou a utilizar o Oracle como fonte persistente dos dados.
-
-Fluxo:
-```text
-Go API
-   ↓
-database/sql
-   ↓
-godror
-   ↓
-Oracle Instant Client
-   ↓
-Oracle Database
-```
-
-A partir desta etapa, os dados dos ônibus deixam de ser perdidos quando a aplicação é reiniciada.
-
-#### Decisão técnica
-
-Foi utilizado `database/sql` em conjunto com o driver `godror`, evitando acoplamento da aplicação diretamente a uma API específica de acesso ao banco.
-
-O Oracle Instant Client foi utilizado como camada nativa necessária para a comunicação com o Oracle no ambiente Linux.
+Integração da aplicação Go com Oracle Database utilizando `database/sql`, `godror` e Oracle Instant Client.
 
 ### Aula 6 — Repository
 
-**Objetivo**: separar a responsabilidade de persistência da camada HTTP.
+Separação das operações de persistência em repositories específicos para reduzir o acoplamento entre HTTP e banco de dados.
 
-Foi realizado:
+### Aula 7 — Validação e erros
 
-- [x] criação do package `repository`;
-- [x] criação do `BusRepository`;
-- [x] criação da função `NewBusRepository`;
-- [x] implementação de `FindAll`;
-- [x] implementação de `FindByID`;
-- [x] implementação de `Create`;
-- [x] implementação de `Update`;
-- [x] implementação de `Delete`;
-- [x] utilização de SQL para persistência no Oracle;
-- [x] tratamento de registros inexistentes;
-- [x] tratamento de erros de banco de dados;
-- [x] integração do Repository com a API;
-- [x] validação do CRUD completo utilizando Oracle.
-
-Estrutura atual:
-
-```text
-HTTP
- ↓
-Repository
- ↓
-Oracle
-```
-
-O Repository foi definido em:
-
-```text
-backend/repository/bus_repository.go
-```
-
-#### Decisão técnica
-
-O Repository foi introduzido somente quando surgiu uma necessidade real de separar a persistência da camada HTTP.
-
-Não foram criadas interfaces apenas para aumentar a complexidade da arquitetura.
-
-A responsabilidade do Repository é executar operações de persistência e retornar os dados ou erros para a camada superior.
-
-### Aula 7 — Validação e tratamento de erros
-
-**Objetivo**: tornar a API mais segura e previsível no tratamento de entradas inválidas, registros inexistentes e erros de operação.
-
-Foi realizado:
-
-- [x] validação de campos obrigatórios;
-- [x] validação de capacidade do ônibus;
-- [x] validação de ID recebido pela URL;
-- [x] tratamento de ID inválido com HTTP 400;
-- [x] tratamento de ônibus inexistente com HTTP 404;
-- [x] tratamento de métodos HTTP não permitidos;
-- [x] tratamento de erros de persistência;
-- [x] retorno HTTP 201 Created para criação;
-- [x] retorno HTTP 204 No Content para exclusão;
-- [x] validação manual dos endpoints utilizando `curl`;
-- [x] validação de criação de registros no Oracle;
-- [x] validação de atualização de registros no Oracle;
-- [x] validação de exclusão de registros no Oracle.
-
-Comportamentos validados:
-
-```text
-POST /api/buses com dados inválidos → 400 Bad Request
-
-GET /api/buses/abc → 400 Bad Request
-
-GET /api/buses/999999 → 404 Not Found
-
-POST /api/buses → 201 Created
-
-PUT /api/buses/{id} → 200 OK
-
-DELETE /api/buses/{id} → 204 No Content
-
-GET /api/buses/{id} após exclusão → 404 Not Found
-```
-
-Exemplo de validação:
-
-```text
-DELETE /api/buses/42
-→ 204 No Content
-
-GET /api/buses/42
-→ 404 Not Found
-```
-
-A API agora diferencia erros de entrada, recursos inexistentes e operações realizadas com sucesso.
-
-#### Decisão técnica
-
-O tratamento de erros foi mantido simples e explícito, utilizando os códigos HTTP adequados para cada situação.
-
-O objetivo nesta etapa não é criar um framework próprio de erros, mas estabelecer um comportamento consistente para a API antes da introdução de testes automatizados mais abrangentes.
+Implementação de validações, tratamento de entradas inválidas, registros inexistentes e respostas HTTP apropriadas.
 
 ### Aula 8 — Testes da API
 
-**Objetivo**: automatizar os testes da API para validar os handlers, regras de validação e diferentes cenários de sucesso e erro sem depender do Oracle Database durante a execução dos testes.
-
-Foi realizado:
-
-- [x] criação do arquivo `backend/main_test.go`;
-- [x] criação de testes unitários;
-- [x] criação de testes para os handlers HTTP;
-- [x] utilização do pacote `net/http/httptest`;
-- [x] testes do endpoint `GET /health`;
-- [x] testes de validação de dados;
-- [x] testes de parsing do ID;
-- [x] testes do endpoint `GET /api/buses`;
-- [x] testes do endpoint `POST /api/buses`;
-- [x] testes do endpoint `GET /api/buses/{id}`;
-- [x] testes do endpoint `PUT /api/buses/{id}`;
-- [x] testes do endpoint `DELETE /api/buses/{id}`;
-- [x] testes de respostas de sucesso;
-- [x] testes de entradas inválidas;
-- [x] testes de registros inexistentes;
-- [x] testes de erros do repository;
-- [x] testes de métodos HTTP não permitidos;
-- [x] validação dos testes com `go test ./...`;
-- [x] execução detalhada dos testes com `go test -v ./...`;
-- [x] criação de um Fake Repository para os testes;
-- [x] formatação dos testes com `gofmt`.
-
-Arquivo criado:
-
-```text
-backend/main_test.go
-```
-
-Estrutura atual relacionada aos testes:
-
-```text
-backend/
-├── database/
-│   └── oracle.go
-├── domain/
-│   ├── bus.go
-│   └── bus_test.go
-├── repository/
-│   └── bus_repository.go
-├── go.mod
-├── go.sum
-├── main.go
-└── main_test.go
-```
-
-Os testes dos handlers utilizam `httptest`, permitindo simular requisições HTTP e verificar os códigos de status e as respostas da API sem iniciar um servidor real.
-
-A interface `BusRepository` foi adicionada à camada HTTP para permitir que os handlers recebam uma implementação real do Repository ou uma implementação falsa durante os testes.
-
-Foi criado um **Fake Repository** para simular as operações de persistência, permitindo testar os handlers sem depender do Oracle Database.
-
-Resultado:
-
-```text
-go test ./...
-
-ok  	github.com/lgomesroc/bus-track-go
-ok  	github.com/lgomesroc/bus-track-go/domain
-```
-
-Execução detalhada:
-
-```text
-go test -v ./...
-
-PASS
-```
-
-Foram cobertos cenários de sucesso e erro, incluindo:
-
-```text
-GET    /health              → 200 OK
-POST   /health              → 405 Method Not Allowed
-
-GET    /api/buses           → 200 OK
-GET    /api/buses           → 500 Internal Server Error
-POST   /api/buses           → 201 Created
-POST   /api/buses           → 400 Bad Request
-
-GET    /api/buses/{id}      → 200 OK
-GET    /api/buses/{id}      → 400 Bad Request
-GET    /api/buses/{id}      → 404 Not Found
-GET    /api/buses/{id}      → 500 Internal Server Error
-
-PUT    /api/buses/{id}      → 200 OK
-PUT    /api/buses/{id}      → 400 Bad Request
-PUT    /api/buses/{id}      → 404 Not Found
-
-DELETE /api/buses/{id}      → 204 No Content
-DELETE /api/buses/{id}      → 404 Not Found
-DELETE /api/buses/{id}      → 500 Internal Server Error
-```
-
-#### Decisão técnica
-
-Os testes foram introduzidos utilizando recursos simples da biblioteca padrão do Go, principalmente `testing` e `net/http/httptest`.
-
-Para testar os handlers sem depender diretamente do Oracle, foi criada uma interface `BusRepository` e uma implementação Fake Repository utilizada exclusivamente pelos testes.
-
-O Fake Repository permite simular cenários de sucesso, registros inexistentes e erros de persistência sem realizar operações reais no banco de dados.
-
-Não foi criada uma infraestrutura externa de testes, banco de dados específico para testes ou framework de mocking.
-
-A abordagem mantém os testes simples e adequados ao tamanho e objetivo do BusTrack Go.
+Criação de testes automatizados para os handlers HTTP utilizando `httptest` e Fake Repository, permitindo testar a API sem depender diretamente do Oracle.
 
 ### Aula 9 — Docker
 
-Nesta aula, o ambiente de desenvolvimento foi organizado utilizando Docker para executar o Oracle Database em um container.
-
-#### Conteúdo da aula
-
-- [x] Docker;
-- [x] Oracle Database em container;
-- [x] variáveis de ambiente;
-- [x] conexão da aplicação Go com o Oracle;
-- [x] configuração do ambiente de desenvolvimento;
-- [x] proteção das credenciais com `.env`;
-- [x] criação do `.env.example`.
-
-#### Configuração do Oracle
-
-O Oracle Database é executado no container `bustrack-oracle`, utilizando a porta `1521` e o service name `FREEPDB1`.
-
-A aplicação utiliza as seguintes variáveis de ambiente:
-
-```env
-ORACLE_USER=system
-ORACLE_PASSWORD=sua_senha
-ORACLE_CONNECT_STRING=localhost:1521/FREEPDB1
-```
-
-As credenciais reais ficam no arquivo `.env`, que não é versionado pelo Git. O arquivo `.env.example` é utilizado como modelo para configuração do ambiente.
-
-#### Conexão com o banco
-
-A conexão com o Oracle foi alterada para utilizar variáveis de ambiente, removendo as credenciais diretamente do código.
-
-O pacote `godror` continua sendo utilizado como driver para comunicação entre a aplicação Go e o Oracle Database.
-
-#### Validação
-
-A aplicação foi executada com o Oracle em funcionamento e a conexão foi validada através dos endpoints:
-
-```text
-GET /health
-GET /api/buses
-```
-
-O endpoint `/api/buses` retornou dados persistidos no Oracle, confirmando a comunicação entre a API, o repository e o banco de dados.
+Configuração do Oracle Database em container Docker e utilização de variáveis de ambiente para configuração da conexão.
 
 ### Aula 10 — Frontend Vue.js
 
-**Objetivo**: criar o frontend do BusTrack Go utilizando Vue.js e realizar a integração com a API REST desenvolvida em Go.
-
-Foi realizado:
-
-- [x] criação do projeto Vue.js;
-- [x] utilização de JavaScript;
-- [x] instalação das dependências do frontend;
-- [x] criação da estrutura básica do projeto;
-- [x] utilização do Vue Router;
-- [x] criação da página `HomeView`;
-- [x] criação do componente `BusList`;
-- [x] utilização de `props`;
-- [x] utilização de `v-for`;
-- [x] consumo da API utilizando `Fetch API`;
-- [x] integração entre Vue.js e API Go;
-- [x] configuração de CORS no backend;
-- [x] exibição dos dados persistidos no Oracle;
-- [x] criação de uma interface simples para listagem dos ônibus;
-- [x] tratamento básico de carregamento;
-- [x] tratamento básico de erro na comunicação com a API;
-- [x] estilização básica com CSS.
-
-Estrutura do frontend:
-
-```text
-frontend/
-├── src/
-│   ├── components/
-│   │   └── BusList.vue
-│   ├── router/
-│   │   └── index.js
-│   ├── views/
-│   │   └── HomeView.vue
-│   ├── App.vue
-│   └── main.js
-├── package.json
-└── ...
-```
-
-Fluxo da aplicação:
-
-```text
-Vue.js
-   ↓
-Fetch API
-   ↓
-Go API
-   ↓
-Repository
-   ↓
-Oracle Database
-```
-
-Primeira tela:
-
-```text
-BusTrack
-
-Ônibus cadastrados
-
-001 - Mercedes-Benz
-Placa: ABC1D23
-Capacidade: 40 passageiros
-Status: Ativo
-
-002 - Volvo
-Placa: DEF4G56
-Capacidade: 42 passageiros
-Status: Ativo
-
-003 - Scania
-Placa: GHI7J89
-Capacidade: 38 passageiros
-Status: Manutenção
-```
-
-A interface foi mantida simples e compatível com o objetivo do projeto, priorizando a integração entre frontend, API e banco de dados em vez da utilização de bibliotecas adicionais de interface.
-
-#### Decisão técnica
-
-Foi utilizado Vue.js sem biblioteca adicional de componentes ou gerenciamento de estado.
-
-A comunicação com a API utiliza a `Fetch API`, evitando a introdução de dependências como Axios sem uma necessidade real.
-
-O Vue Router foi utilizado para estabelecer a estrutura de páginas do frontend.
-
-A interface foi mantida simples para que o foco permaneça na integração entre Vue.js, API REST em Go e Oracle Database.
+Criação do frontend utilizando Vue.js, Vue Router, JavaScript e Fetch API, com integração à API Go.
 
 ### Aula 11 — CRUD no Vue
 
-**Objetivo**: ampliar o frontend Vue.js para permitir o gerenciamento de ônibus, linhas e registro de viagens, integrando as operações diretamente com a API Go.
-
-Foi realizado:
-
-* [x] listagem de ônibus;
-* [x] cadastro de ônibus;
-* [x] edição de ônibus;
-* [x] exclusão de ônibus;
-* [x] formulário de cadastro e edição;
-* [x] alteração do status do ônibus;
-* [x] tratamento básico de erros;
-* [x] integração com `GET /api/buses`;
-* [x] integração com `POST /api/buses`;
-* [x] integração com `PUT /api/buses/{id}`;
-* [x] integração com `DELETE /api/buses/{id}`;
-* [x] cadastro de linhas;
-* [x] listagem de linhas;
-* [x] cálculo da média de passageiros por linha;
-* [x] registro de viagens;
-* [x] listagem das viagens registradas;
-* [x] integração com `GET /api/trips`;
-* [x] integração com `POST /api/trips`;
-* [x] atualização imediata da interface após o registro de uma viagem;
-* [x] validação do fluxo completo entre Vue.js, API Go e Oracle Database.
-
-O frontend passou a utilizar a API para realizar as operações de CRUD dos ônibus e também para cadastrar e consultar linhas e viagens.
-
-Fluxo atual:
-
-```text
-Vue.js
-   ↓
-Fetch API
-   ↓
-Go API
-   ↓
-Repository
-   ↓
-Oracle Database
-```
-
-A interface permite:
-
-```text
-Ônibus
-├── Cadastrar
-├── Listar
-├── Editar
-└── Excluir
-
-Linhas
-├── Cadastrar
-├── Listar
-└── Exibir média de passageiros
-
-Viagens
-├── Registrar
-└── Listar
-```
-
-Após o registro de uma viagem, o novo registro é apresentado imediatamente na interface, sem necessidade de atualizar manualmente a página.
-
-#### Decisão técnica
-
-O frontend continua utilizando apenas Vue.js, JavaScript, Vue Router, Fetch API e CSS básico.
-
-Não foram adicionadas bibliotecas de componentes, gerenciamento global de estado ou outras abstrações para resolver as operações do CRUD.
-
-A edição e exclusão dos ônibus foram mantidas simples, utilizando diretamente os endpoints existentes da API.
-
-Também não foi adicionada uma camada Service ao backend para o registro de viagens. O fluxo continua utilizando o Repository existente, mantendo a arquitetura compatível com o tamanho e o objetivo do projeto.
-
-Durante a integração das viagens, foi identificado um problema na recuperação do registro recém-criado no Oracle. O `INSERT` era executado corretamente, mas a aplicação não conseguia recuperar a viagem criada. A consulta foi ajustada para localizar corretamente o registro persistido, mantendo o fluxo simples.
-
-O objetivo continua sendo adicionar complexidade somente quando existir uma necessidade real.
-
-## Próximas aulas
+Ampliação do frontend para gerenciamento de ônibus, cadastro e consulta de linhas e registro e consulta de viagens, incluindo integração completa com o Oracle Database.
 
 ### Aula 12 — Fechamento e documentação
 
-Aqui fazemos o acabamento.
+Revisão final da estrutura, validação da aplicação, documentação da arquitetura, registro das decisões técnicas e preparação do projeto para publicação.
 
-- [ ] revisar estrutura;
-- [ ] revisar código;
-- [ ] testar aplicação completa;
-- [ ] revisar Docker;
-- [ ] atualizar README;
-- [ ] explicar arquitetura;
-- [ ] registrar decisões técnicas;
-- [ ] criar versão final do projeto;
-- [ ] Git/GitHub.
+## Evolução do projeto
 
-## Evolução
 ```text
-Aula 1
-  ↓
-Inicialização Go
-
-Aula 2
-  ↓
+Go
+ ↓
 HTTP
-
-Aula 3
-  ↓
+ ↓
 Domínio
-
-Aula 4
-  ↓
-CRUD em memória
-
-Aula 5
-  ↓
-Oracle + godror + Instant Client
-
-Aula 6
-  ↓
+ ↓
+CRUD
+ ↓
+Oracle
+ ↓
 Repository
-
-Aula 7
-  ↓
-Validação + erros
-
-Aula 8
-  ↓
-Testes da API
-
-Aula 9
-  ↓
+ ↓
+Validação e tratamento de erros
+ ↓
+Testes
+ ↓
 Docker
-
-Aula 10
-  ↓
-Frontend Vue.js
-  ↓
-Integração com API Go
-  ↓
-Aula 11
-  ↓
-CRUD no Vue
-  ↓
+ ↓
+Vue.js
+ ↓
+CRUD no frontend
+ ↓
 Linhas e viagens
-  ↓
-Integração completa com Oracle
+ ↓
+Aplicação integrada
 ```
+
+## Decisões técnicas
+
+### Biblioteca padrão do Go
+
+A API utiliza principalmente recursos da biblioteca padrão do Go, evitando a adoção de um framework HTTP sem uma necessidade concreta.
+
+### Repository
+
+A camada Repository foi introduzida quando a persistência passou a ser responsabilidade importante da aplicação.
+
+### Ausência de Service
+
+Não foi criada uma camada Service porque as operações existentes não apresentaram complexidade suficiente para justificar uma nova camada de abstração.
+
+### Fetch API
+
+A comunicação entre Vue.js e backend utiliza a Fetch API. Não foi adicionada uma biblioteca HTTP externa porque a necessidade do projeto é atendida pela API nativa do navegador.
+
+### Interface simples
+
+O frontend foi mantido propositalmente simples, priorizando a integração entre interface, API e banco de dados.
+
+### Oracle Database
+
+O Oracle foi utilizado como banco relacional principal para trabalhar com persistência, SQL e integração com uma tecnologia comum em ambientes corporativos.
 
 ## Deploy e publicação
 
-O projeto será desenvolvido desde o início considerando a publicação da aplicação em ambiente de produção.
+O BusTrack Go foi estruturado para publicação como projeto de portfólio.
 
-Ao final do desenvolvimento, o BusTrack Go terá:
+A aplicação é composta por três partes principais:
 
-- [ ] backend publicado;
-- [ ] frontend publicado;
-- [ ] aplicação acessível por URL pública;
-- [ ] configuração de produção;
-- [ ] documentação do processo de deploy.
+```text
+Frontend Vue.js
+      ↓
+Backend Go
+      ↓
+Oracle Database
+```
 
-O objetivo é disponibilizar tanto o repositório no GitHub quanto uma versão funcional da aplicação para utilização como projeto de portfólio.
+O frontend e o backend podem ser publicados separadamente, enquanto o banco de dados precisa de uma infraestrutura compatível com Oracle Database.
+
+A configuração de produção deve utilizar variáveis de ambiente para as credenciais e informações de conexão, evitando o armazenamento de dados sensíveis no código-fonte.
+
+A versão publicada do projeto será disponibilizada junto ao repositório GitHub para facilitar a avaliação da aplicação.
+
+## Objetivo do projeto
+
+O BusTrack Go foi desenvolvido para praticar, de forma incremental, conceitos fundamentais de desenvolvimento backend e integração full stack:
+
+* desenvolvimento de APIs REST;
+* linguagem Go;
+* HTTP;
+* modelagem de domínio;
+* persistência relacional;
+* SQL;
+* Repository Pattern;
+* validação e tratamento de erros;
+* testes automatizados;
+* Docker;
+* desenvolvimento frontend com Vue.js;
+* integração frontend/backend;
+* Git e GitHub.
+
+O projeto prioriza uma arquitetura simples e compreensível, adicionando abstrações somente quando existe uma necessidade concreta.
+
+## Licença
+
+Este projeto está licenciado sob a MIT License. Consulte o arquivo [LICENSE](LICENSE) para mais informações.
