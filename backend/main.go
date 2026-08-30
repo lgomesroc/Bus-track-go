@@ -21,6 +21,23 @@ type BusRepository interface {
 	Delete(id int) error
 }
 
+type LineRepository interface {
+	FindAll() ([]domain.Line, error)
+	FindByID(id int) (*domain.Line, error)
+	Create(line domain.Line) (*domain.Line, error)
+	Update(id int, line domain.Line) (*domain.Line, error)
+	Delete(id int) error
+}
+
+type TripRepository interface {
+	FindAll() ([]domain.Trip, error)
+	FindByID(id int) (*domain.Trip, error)
+	Create(trip domain.Trip) (*domain.Trip, error)
+	Update(id int, trip domain.Trip) (*domain.Trip, error)
+	Delete(id int) error
+	AveragePassengersByLine(lineID int) (float64, error)
+}
+
 func main() {
 	db, err := database.NewOracleConnection()
 	if err != nil {
@@ -29,12 +46,21 @@ func main() {
 	defer db.Close()
 
 	busRepository := repository.NewBusRepository(db)
+	lineRepository := repository.NewLineRepository(db)
+	tripRepository := repository.NewTripRepository(db)
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/health", healthHandler)
+
 	mux.HandleFunc("/api/buses", busesHandler(busRepository))
 	mux.HandleFunc("/api/buses/", busByIDHandler(busRepository))
+
+	mux.HandleFunc("/api/lines", linesHandler(lineRepository))
+	mux.HandleFunc("/api/lines/", lineByIDHandler(lineRepository, tripRepository))
+
+	mux.HandleFunc("/api/trips", tripsHandler(tripRepository))
+	mux.HandleFunc("/api/trips/", tripByIDHandler(tripRepository))
 
 	log.Println("BusTrack API running on http://localhost:8080")
 
@@ -177,6 +203,256 @@ func busByIDHandler(busRepository BusRepository) http.HandlerFunc {
 	}
 }
 
+func linesHandler(lineRepository LineRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			lines, err := lineRepository.FindAll()
+			if err != nil {
+				http.Error(w, "failed to find lines", http.StatusInternalServerError)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, lines)
+
+		case http.MethodPost:
+			var line domain.Line
+
+			if err := decodeJSON(r, &line); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			if err := validateLine(line); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			createdLine, err := lineRepository.Create(line)
+			if err != nil {
+				http.Error(w, "failed to create line", http.StatusInternalServerError)
+				return
+			}
+
+			writeJSON(w, http.StatusCreated, createdLine)
+
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
+func lineByIDHandler(
+	lineRepository LineRepository,
+	tripRepository TripRepository,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api/lines/")
+
+		if strings.HasSuffix(path, "/average-passengers") {
+			idString := strings.TrimSuffix(path, "/average-passengers")
+
+			id, err := strconv.Atoi(idString)
+			if err != nil || id <= 0 {
+				http.Error(w, "invalid line id", http.StatusBadRequest)
+				return
+			}
+
+			if r.Method != http.MethodGet {
+				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+
+			average, err := tripRepository.AveragePassengersByLine(id)
+			if err != nil {
+				http.Error(w, "failed to calculate average passengers", http.StatusInternalServerError)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, map[string]interface{}{
+				"lineId":            id,
+				"averagePassengers": average,
+			})
+
+			return
+		}
+
+		id, err := strconv.Atoi(path)
+		if err != nil || id <= 0 {
+			http.Error(w, "invalid line id", http.StatusBadRequest)
+			return
+		}
+
+		switch r.Method {
+		case http.MethodGet:
+			line, err := lineRepository.FindByID(id)
+			if err != nil {
+				http.Error(w, "failed to find line", http.StatusInternalServerError)
+				return
+			}
+
+			if line == nil {
+				http.Error(w, "line not found", http.StatusNotFound)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, line)
+
+		case http.MethodPut:
+			var line domain.Line
+
+			if err := decodeJSON(r, &line); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			if err := validateLine(line); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			updatedLine, err := lineRepository.Update(id, line)
+			if err != nil {
+				http.Error(w, "failed to update line", http.StatusInternalServerError)
+				return
+			}
+
+			if updatedLine == nil {
+				http.Error(w, "line not found", http.StatusNotFound)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, updatedLine)
+
+		case http.MethodDelete:
+			err := lineRepository.Delete(id)
+			if err != nil {
+				if errors.Is(err, repository.ErrLineNotFound) {
+					http.Error(w, "line not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(w, "failed to delete line", http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusNoContent)
+
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
+func tripsHandler(tripRepository TripRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			trips, err := tripRepository.FindAll()
+			if err != nil {
+				http.Error(w, "failed to find trips", http.StatusInternalServerError)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, trips)
+
+		case http.MethodPost:
+			var trip domain.Trip
+
+			if err := decodeJSON(r, &trip); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			if err := validateTrip(trip); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			createdTrip, err := tripRepository.Create(trip)
+			if err != nil {
+				log.Printf("failed to create trip: %v", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			writeJSON(w, http.StatusCreated, createdTrip)
+
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
+func tripByIDHandler(tripRepository TripRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := parseID(r.URL.Path, "/api/trips/")
+		if err != nil {
+			http.Error(w, "invalid trip id", http.StatusBadRequest)
+			return
+		}
+
+		switch r.Method {
+		case http.MethodGet:
+			trip, err := tripRepository.FindByID(id)
+			if err != nil {
+				http.Error(w, "failed to find trip", http.StatusInternalServerError)
+				return
+			}
+
+			if trip == nil {
+				http.Error(w, "trip not found", http.StatusNotFound)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, trip)
+
+		case http.MethodPut:
+			var trip domain.Trip
+
+			if err := decodeJSON(r, &trip); err != nil {
+				http.Error(w, "invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			if err := validateTrip(trip); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			updatedTrip, err := tripRepository.Update(id, trip)
+			if err != nil {
+				http.Error(w, "failed to update trip", http.StatusInternalServerError)
+				return
+			}
+
+			if updatedTrip == nil {
+				http.Error(w, "trip not found", http.StatusNotFound)
+				return
+			}
+
+			writeJSON(w, http.StatusOK, updatedTrip)
+
+		case http.MethodDelete:
+			err := tripRepository.Delete(id)
+			if err != nil {
+				if errors.Is(err, repository.ErrTripNotFound) {
+					http.Error(w, "trip not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(w, "failed to delete trip", http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusNoContent)
+
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
 func validateBus(bus domain.Bus) error {
 	if strings.TrimSpace(bus.Prefix) == "" {
 		return errors.New("prefix is required")
@@ -201,14 +477,63 @@ func validateBus(bus domain.Bus) error {
 	return nil
 }
 
-func parseBusID(path string) (int, error) {
-	idString := strings.TrimPrefix(path, "/api/buses/")
-
-	if idString == "" || strings.Contains(idString, "/") {
-		return 0, errors.New("invalid bus id")
+func validateLine(line domain.Line) error {
+	if strings.TrimSpace(line.Code) == "" {
+		return errors.New("code is required")
 	}
 
-	return strconv.Atoi(idString)
+	if strings.TrimSpace(line.Origin) == "" {
+		return errors.New("origin is required")
+	}
+
+	if strings.TrimSpace(line.Destination) == "" {
+		return errors.New("destination is required")
+	}
+
+	return nil
+}
+
+func validateTrip(trip domain.Trip) error {
+	if trip.LineID <= 0 {
+		return errors.New("lineId must be greater than zero")
+	}
+
+	if trip.BusID <= 0 {
+		return errors.New("busId must be greater than zero")
+	}
+
+	if strings.TrimSpace(trip.TripDate) == "" {
+		return errors.New("tripDate is required")
+	}
+
+	if strings.TrimSpace(trip.TripTime) == "" {
+		return errors.New("tripTime is required")
+	}
+
+	if trip.Passengers < 0 {
+		return errors.New("passengers must be greater than or equal to zero")
+	}
+
+	return nil
+}
+
+func parseBusID(path string) (int, error) {
+	return parseID(path, "/api/buses/")
+}
+
+func parseID(path string, prefix string) (int, error) {
+	idString := strings.TrimPrefix(path, prefix)
+
+	if idString == "" || strings.Contains(idString, "/") {
+		return 0, errors.New("invalid id")
+	}
+
+	id, err := strconv.Atoi(idString)
+	if err != nil || id <= 0 {
+		return 0, errors.New("invalid id")
+	}
+
+	return id, nil
 }
 
 func decodeJSON(r *http.Request, target interface{}) error {
