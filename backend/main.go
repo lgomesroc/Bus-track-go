@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -62,9 +63,14 @@ func main() {
 	mux.HandleFunc("/api/trips", tripsHandler(tripRepository))
 	mux.HandleFunc("/api/trips/", tripByIDHandler(tripRepository))
 
-	log.Println("BusTrack API running on http://localhost:8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-	if err := http.ListenAndServe(":8080", corsMiddleware(mux)); err != nil {
+	log.Printf("BusTrack API running on port %s", port)
+
+	if err := http.ListenAndServe("0.0.0.0:"+port, corsMiddleware(mux)); err != nil {
 		log.Fatal(err)
 	}
 }
