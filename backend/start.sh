@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+rm -rf /tmp/oracle-wallet /tmp/bustrack-wallet.zip
 mkdir -p /tmp/oracle-wallet
 
 if [ -f /etc/secrets/bustrack-wallet.zip.b64 ]; then
