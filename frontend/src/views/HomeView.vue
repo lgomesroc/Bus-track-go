@@ -1,6 +1,9 @@
 <script>
 import BusList from '../components/BusList.vue'
 
+const API_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8080'
+
 export default {
   components: {
     BusList
@@ -58,9 +61,9 @@ export default {
       try {
         const [busesResponse, linesResponse, tripsResponse] =
           await Promise.all([
-            fetch('http://localhost:8080/api/buses'),
-            fetch('http://localhost:8080/api/lines'),
-            fetch('http://localhost:8080/api/trips')
+            fetch(`${API_URL}/api/buses`),
+            fetch(`${API_URL}/api/lines`),
+            fetch(`${API_URL}/api/trips`)
           ])
 
         if (!busesResponse.ok) {
@@ -90,7 +93,7 @@ export default {
       this.error = null
 
       try {
-        const response = await fetch('http://localhost:8080/api/lines', {
+        const response = await fetch(`${API_URL}/api/lines`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -123,7 +126,7 @@ export default {
       this.error = null
 
       try {
-        const response = await fetch('http://localhost:8080/api/buses', {
+        const response = await fetch(`${API_URL}/api/buses`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -173,7 +176,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8080/api/buses/${this.editingBus.id}`,
+          `${API_URL}/api/buses/${this.editingBus.id}`,
           {
             method: 'PUT',
             headers: {
@@ -221,7 +224,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8080/api/buses/${bus.id}`,
+          `${API_URL}/api/buses/${bus.id}`,
           {
             method: 'DELETE'
           }
@@ -246,7 +249,7 @@ export default {
       this.error = null
 
       try {
-        const response = await fetch('http://localhost:8080/api/trips', {
+        const response = await fetch(`${API_URL}/api/trips`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -709,4 +712,3 @@ li {
   margin-bottom: 12px;
 }
 </style>
-
