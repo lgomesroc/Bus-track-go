@@ -172,6 +172,42 @@ A aplicação Go conecta-se ao banco utilizando Oracle Wallet e as variáveis de
 
 Credenciais e arquivos do Oracle Wallet não são armazenados no repositório.
 
+## Fluxo de desenvolvimento
+
+A branch `main` representa a versão principal e publicada do projeto.
+
+A `main` deve permanecer protegida e não deve receber alterações diretamente.
+
+Para realizar qualquer alteração no projeto:
+
+1. Criar uma nova branch a partir da `main`;
+2. Desenvolver e testar as alterações nessa branch;
+3. Fazer commit das alterações;
+4. Enviar a branch para o GitHub;
+5. Abrir um Pull Request para `main`;
+6. Revisar e integrar o Pull Request;
+7. Após o merge, a `main` passa a conter a nova versão do projeto.
+
+Exemplo:
+
+```bash
+git switch main
+git pull origin main
+git switch -c nome-da-nova-branch
+```
+
+Depois do desenvolvimento:
+
+```bash
+git add .
+git commit -m "descricao da alteracao"
+git push -u origin nome-da-nova-branch
+```
+
+A integração com `main` deve ser realizada através de Pull Request.
+
+A branch `main` é utilizada como referência para publicação e deploy da aplicação.
+
 ## Docker
 
 O Oracle Database utilizado no ambiente de desenvolvimento é executado em um container Docker.
