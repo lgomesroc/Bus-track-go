@@ -1,12 +1,23 @@
 # BusTrack Go
 
-Backend e frontend de uma aplicação de gerenciamento de transporte urbano, desenvolvida com Go, Vue.js e Oracle Database.
+Aplicação de gerenciamento de transporte urbano desenvolvida com **Go, Vue.js e Oracle Database**.
 
 ![BusTrack Go](./tela_app_bustrack.png)
 
-O BusTrack Go foi desenvolvido como projeto de aprendizado prático e portfólio, evoluindo de uma API HTTP simples para uma aplicação completa com persistência em banco de dados, testes automatizados, Docker e interface web.
+O BusTrack Go foi desenvolvido como projeto de aprendizado prático e portfólio, evoluindo de uma API HTTP simples para uma aplicação full stack com persistência em banco de dados, testes automatizados, Docker e interface web.
 
-**Status:** Concluído
+**Status: Concluído**
+
+## Aplicação publicada
+
+**Frontend:**
+https://bus-track-go-frontend.onrender.com/
+
+**Backend / API:**
+https://bus-track-go.onrender.com/
+
+**Health Check:**
+https://bus-track-go.onrender.com/health
 
 ## Funcionalidades
 
@@ -21,7 +32,7 @@ O BusTrack Go foi desenvolvido como projeto de aprendizado prático e portfólio
 * integração entre frontend, backend e banco de dados;
 * validação de dados e tratamento de erros;
 * testes automatizados dos handlers HTTP;
-* execução do Oracle Database em container Docker.
+* execução do Oracle Database em container Docker no ambiente local.
 
 ## Tecnologias
 
@@ -82,6 +93,7 @@ Não foi adicionada uma camada Service. A decisão foi manter a arquitetura prop
 
 ```text
 bus-track-go/
+
 ├── backend/
 │   ├── database/
 │   │   └── oracle.go
@@ -99,7 +111,9 @@ bus-track-go/
 │   ├── go.mod
 │   ├── go.sum
 │   ├── main.go
-│   └── main_test.go
+│   ├── main_test.go
+│   └── start.sh
+│
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
@@ -113,15 +127,20 @@ bus-track-go/
 │   ├── package.json
 │   ├── package-lock.json
 │   └── vite.config.js
+│
 ├── .env.example
+├── .dockerignore
 ├── .gitignore
 ├── LICENSE
-└── README.md
+├── README.md
+└── .github/
+    └── workflows/
+        └── ci.yml
 ```
 
 ## Banco de dados
 
-O projeto utiliza **Oracle Database** como banco de dados principal.
+O projeto utiliza **Oracle Database** como banco de dados relacional principal.
 
 A comunicação entre Go e Oracle utiliza:
 
@@ -141,6 +160,18 @@ O projeto utiliza o Oracle Instant Client para disponibilizar as bibliotecas nat
 
 As operações de persistência são realizadas pela camada `repository`.
 
+### Ambiente local
+
+No ambiente local, o Oracle Database é executado através de Docker.
+
+### Ambiente de produção
+
+A versão publicada utiliza uma instância Oracle Database hospedada na Oracle Cloud.
+
+A aplicação Go conecta-se ao banco utilizando Oracle Wallet e as variáveis de ambiente configuradas no ambiente de produção.
+
+Credenciais e arquivos do Oracle Wallet não são armazenados no repositório.
+
 ## Docker
 
 O Oracle Database utilizado no ambiente de desenvolvimento é executado em um container Docker.
@@ -153,25 +184,21 @@ Porta: 1521
 Service Name: FREEPDB1
 ```
 
-O Docker permite manter o banco de dados isolado do sistema operacional e facilita a reprodução do ambiente local.
-
 Para iniciar um container Oracle já criado:
 
 ```bash
 docker start bustrack-oracle
 ```
 
-Caso o nome do container seja diferente no ambiente local, utilize:
+Caso o nome do container seja diferente no ambiente local:
 
 ```bash
 docker ps -a
 ```
 
-para identificar o container Oracle disponível.
-
 ## Configuração do ambiente
 
-### Variáveis de ambiente
+### Backend
 
 A aplicação Go utiliza as seguintes variáveis:
 
@@ -179,6 +206,7 @@ A aplicação Go utiliza as seguintes variáveis:
 ORACLE_USER
 ORACLE_PASSWORD
 ORACLE_CONNECT_STRING
+CORS_ORIGIN
 ```
 
 Um arquivo `.env.example` está disponível no projeto como referência.
@@ -191,7 +219,27 @@ Para verificar se o arquivo está sendo ignorado:
 git check-ignore -v .env
 ```
 
-## Como executar o projeto
+### Frontend
+
+O frontend utiliza:
+
+```text
+VITE_API_URL
+```
+
+No ambiente local:
+
+```text
+VITE_API_URL=http://localhost:8080
+```
+
+Em produção:
+
+```text
+VITE_API_URL=https://bus-track-go.onrender.com
+```
+
+## Como executar o projeto localmente
 
 Para executar a aplicação localmente, é necessário ter instalado:
 
@@ -204,8 +252,6 @@ Para executar a aplicação localmente, é necessário ter instalado:
 O Oracle Database é executado através do Docker.
 
 ### 1. Iniciar o Oracle Database
-
-Inicie o container Oracle:
 
 ```bash
 docker start bustrack-oracle
@@ -223,7 +269,7 @@ O Oracle deve estar disponível na porta:
 1521
 ```
 
-e utilizando o service name:
+utilizando o service name:
 
 ```text
 FREEPDB1
@@ -231,7 +277,7 @@ FREEPDB1
 
 ### 2. Executar o backend Go
 
-Abra um terminal e acesse o diretório do backend:
+Acesse o diretório do backend:
 
 ```bash
 cd ~/projetos/bus-track-go/backend
@@ -241,19 +287,12 @@ Configure as variáveis de ambiente:
 
 ```bash
 export ORACLE_USER=system
-export ORACLE_PASSWORD=BusTrack123
+export ORACLE_PASSWORD=<sua_senha>
 export ORACLE_CONNECT_STRING=localhost:1521/FREEPDB1
+export CORS_ORIGIN=http://localhost:5173
 ```
 
-As variáveis podem ser verificadas com:
-
-```bash
-echo $ORACLE_USER
-echo $ORACLE_PASSWORD
-echo $ORACLE_CONNECT_STRING
-```
-
-Depois, execute a API:
+Execute a API:
 
 ```bash
 go run .
@@ -287,15 +326,13 @@ Em outro terminal:
 cd ~/projetos/bus-track-go/frontend
 ```
 
-Instale as dependências do projeto:
+Instale as dependências:
 
 ```bash
 npm install
 ```
 
-As dependências do Vue.js, Vue Router e demais pacotes necessários são definidas no `package.json` e instaladas pelo `npm install`.
-
-Depois, execute o servidor de desenvolvimento:
+Execute o servidor de desenvolvimento:
 
 ```bash
 npm run dev
@@ -382,6 +419,77 @@ Para verificar a compilação:
 go build ./...
 ```
 
+## Integração Contínua
+
+O projeto utiliza **GitHub Actions** para executar automaticamente:
+
+* testes do backend Go;
+* build do frontend Vue.js.
+
+O workflow é executado em pushes para `main` e `deploy-render` e em Pull Requests direcionados para `main`.
+
+## Deploy e publicação
+
+O projeto está publicado utilizando o Render.
+
+A arquitetura de produção é:
+
+```text
+Usuário
+   ↓
+Frontend Vue.js
+   ↓
+Render Static Site
+   ↓
+Go REST API
+   ↓
+Render Web Service
+   ↓
+Oracle Database
+   ↓
+Oracle Cloud
+```
+
+### Frontend
+
+O frontend Vue.js é publicado como Static Site.
+
+URL:
+
+```text
+https://bus-track-go-frontend.onrender.com/
+```
+
+### Backend
+
+A API Go é executada como Web Service.
+
+URL:
+
+```text
+https://bus-track-go.onrender.com/
+```
+
+Health check:
+
+```text
+https://bus-track-go.onrender.com/health
+```
+
+### Configuração de produção
+
+O frontend utiliza:
+
+```text
+VITE_API_URL=https://bus-track-go.onrender.com
+```
+
+O backend utiliza `CORS_ORIGIN` apontando para o endereço do frontend.
+
+As credenciais do banco e o Oracle Wallet são configurados como variáveis e arquivos secretos no ambiente de produção.
+
+Nenhuma credencial sensível é armazenada no código-fonte.
+
 ## Histórico de desenvolvimento
 
 ### Aula 1 — Inicialização
@@ -459,7 +567,9 @@ CRUD no frontend
  ↓
 Linhas e viagens
  ↓
-Aplicação integrada
+Integração frontend/backend
+ ↓
+Deploy
 ```
 
 ## Decisões técnicas
@@ -488,25 +598,9 @@ O frontend foi mantido propositalmente simples, priorizando a integração entre
 
 O Oracle foi utilizado como banco relacional principal para trabalhar com persistência, SQL e integração com uma tecnologia comum em ambientes corporativos.
 
-## Deploy e publicação
+### Deploy
 
-O BusTrack Go foi estruturado para publicação como projeto de portfólio.
-
-A aplicação é composta por três partes principais:
-
-```text
-Frontend Vue.js
-      ↓
-Backend Go
-      ↓
-Oracle Database
-```
-
-O frontend e o backend podem ser publicados separadamente, enquanto o banco de dados precisa de uma infraestrutura compatível com Oracle Database.
-
-A configuração de produção deve utilizar variáveis de ambiente para as credenciais e informações de conexão, evitando o armazenamento de dados sensíveis no código-fonte.
-
-A versão publicada do projeto será disponibilizada junto ao repositório GitHub para facilitar a avaliação da aplicação.
+Frontend e backend são publicados separadamente, enquanto o banco de dados de produção utiliza Oracle Database na Oracle Cloud.
 
 ## Objetivo do projeto
 
@@ -524,7 +618,9 @@ O BusTrack Go foi desenvolvido para praticar, de forma incremental, conceitos fu
 * Docker;
 * desenvolvimento frontend com Vue.js;
 * integração frontend/backend;
-* Git e GitHub.
+* Git e GitHub;
+* CI com GitHub Actions;
+* deploy de aplicação.
 
 O projeto prioriza uma arquitetura simples e compreensível, adicionando abstrações somente quando existe uma necessidade concreta.
 
