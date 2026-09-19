@@ -24,7 +24,10 @@ RUN wget -q https://download.oracle.com/otn_software/linux/instantclient/2326000
 ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_23_26
 
 COPY --from=builder /app/bustrack /app/bustrack
+COPY backend/start.sh /app/start.sh
+
+RUN chmod +x /app/start.sh
 
 EXPOSE 8080
 
-CMD ["/app/bustrack"]
+CMD ["/app/start.sh"]
